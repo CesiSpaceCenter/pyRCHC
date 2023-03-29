@@ -1,0 +1,6 @@
+__pycache__
+.vscode
+arduino_test
+logs
+sessions
+settings.json
