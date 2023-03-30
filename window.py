@@ -89,11 +89,16 @@ class MainWindow(QtWidgets.QMainWindow):
             self.timerLabel.setText('t+0s')
 
     def connect_serial(self, device_index : int) -> None:
-        if self.serial.is_open: # si la connexion est déjà ouverte
-            self.serial.close() # on la ferme
-
-        self.serial.port = self.serial_list[device_index].device # on prends le port série sélectionner dans le combobox
-        self.serial.open()
+        if device_index == len(self.serial_list): # dernier élément du combobox, élément "Déconnecter"
+            if self.serial.is_open:
+                self.logger.log(f'Déconnexion du port série {self.serial.port}')
+                self.serial.close()
+        else:
+            if self.serial.is_open: # si la connexion est déjà ouverte
+                self.serial.close() # on la ferme
+            self.serial.port = self.serial_list[device_index].device # on prends le port série sélectionner dans le combobox
+            self.logger.log(f'Connexion au port série {self.serial.port}')
+            self.serial.open()
 
 
     def update_serial_list(self):
@@ -101,6 +106,7 @@ class MainWindow(QtWidgets.QMainWindow):
         self.serial_list = serial.tools.list_ports.comports()
         for device in self.serial_list:
             self.serialComboBox.addItem(device.device + ' : ' + device.description) # on ajoute le port à la liste (port + nom)
+        self.serialComboBox.addItem('Déconnecter')
 
     graph_data = {}
     def init_graph(self):
