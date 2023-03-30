@@ -7,6 +7,9 @@ class Data:
         self.logger = logger
         
     def check(self, data : bytes) -> str | dict:
+        if len(data) == 0: # aucune données reçus
+            return 'Empty data packet'
+
         if data.endswith(b'\r\n'): # les données doivent finir par \r\n (Carriage Return & New Line)
             data = data.replace(b'\r\n', b'')
         else:

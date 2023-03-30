@@ -483,13 +483,6 @@ QProgressBar {
       <layout class="QGridLayout" name="gridLayout_4"/>
      </widget>
     </item>
-    <item row="2" column="3" colspan="2">
-     <widget class="QGroupBox" name="controlBox">
-      <property name="title">
-       <string>Controle</string>
-      </property>
-     </widget>
-    </item>
     <item row="2" column="0" colspan="3">
      <widget class="QGroupBox" name="graphBox">
       <property name="maximumSize">
@@ -513,6 +506,22 @@ QProgressBar {
        </item>
        <item row="1" column="1">
         <widget class="PlotWidget" name="accGraph" native="true"/>
+       </item>
+      </layout>
+     </widget>
+    </item>
+    <item row="2" column="3" colspan="2">
+     <widget class="QGroupBox" name="controlBox">
+      <property name="title">
+       <string>Controle</string>
+      </property>
+      <layout class="QGridLayout" name="gridLayout_6">
+       <item row="0" column="0">
+        <widget class="QPushButton" name="resetGyroButton">
+         <property name="text">
+          <string>Réinitialiser le gyroscope</string>
+         </property>
+        </widget>
        </item>
       </layout>
      </widget>

@@ -22,13 +22,11 @@ class MainWindow(QtWidgets.QMainWindow):
 
         self.logger.log('Création de la fenêtre')
 
-        uic.loadUi('ui.ui', self)
+        uic.loadUi('rchc.ui', self)
         self.show()
         self.init_graph()
 
-
         self.logger.setMainWindow(self)
-
 
         self.serial = serial.Serial()
         self.serial.baudrate = 9600
@@ -40,6 +38,8 @@ class MainWindow(QtWidgets.QMainWindow):
 
         self.sessionButton.clicked.connect(self.session_button)
         self.sessionLabel.mousePressEvent = lambda e: self.open_session_folder()
+
+        self.resetGyroButton.clicked.connect(lambda: self.send_command(0))
 
         # timer qui refresh la liste des ports séries
         self.update_serial_list()
@@ -60,6 +60,10 @@ class MainWindow(QtWidgets.QMainWindow):
 
     def handle_log(self, line : str) -> None:
         self.logTextEdit.appendPlainText(line)
+
+    def send_command(self, command : int) -> None:
+        self.serial.write(command)
+        self.logger.log(f'Commande {command} envoyée')
 
     def session_button(self) -> None:
         if self.session == None: # session fermé, on doit alors la créer
