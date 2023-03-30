@@ -1,13 +1,13 @@
 import os
-import sys
 import json
 
 from constants import *
+from logger import Logger
 
 class Settings:
 	settings = {}
 
-	def __init__(self, logger) -> None:
+	def __init__(self, logger : Logger) -> None:
 		self.logger = logger
 		
 		self.settings_path = os.path.join(APP_DIR, 'settings.json')
@@ -25,16 +25,16 @@ class Settings:
 		with open(self.settings_path, 'r') as file:
 			self.settings = json.loads(file.read())
 
-	def get(self, key):
+	def get(self, key : str) -> str | int | float | bool | None:
 		try:
 			return self.settings[key]
 		except KeyError:
 			return None
 
-	def get_all(self) -> None:
+	def get_all(self) -> dict[str, str | int | float | bool]:
 		return self.settings
 
-	def set(self, key : str, value : any) -> None:
+	def set(self, key : str, value : str | int | float | bool) -> None:
 		self.logger.log(f'Sauvegarde du paramètre {key}: {value}')
 		self.settings[key] = value
 		with open(self.settings_path, 'w') as file:

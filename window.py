@@ -7,16 +7,18 @@ import time
 import subprocess
 
 import utils
-from data import Data
+from data import Data, IntegrityCheckException
 from graph import GraphData
 from session import Session
+from logger import Logger
+from settings import Settings
 from constants import *
 
 class MainWindow(QtWidgets.QMainWindow):
     def __init__(self, *args, **kwargs):
         super(MainWindow, self).__init__(*args, **kwargs)
 
-    def init(self, settings, logger) -> None: # fonction séparée pour pouvoir passer les args (non autorisé par la classe QMainWindow sinon)
+    def init(self, settings : Settings, logger : Logger) -> None: # fonction séparée pour pouvoir passer les args (non autorisé par la classe QMainWindow sinon)
         self.settings = settings
         self.logger = logger
 
@@ -55,14 +57,14 @@ class MainWindow(QtWidgets.QMainWindow):
         # timer principal pour la mise à jour des données
         utils.init_qtimer(self, 50, self.update_data)
 
-        # timer d'écriture des données reçu sur le disque dur
-        utils.init_qtimer(self, 5000, lambda: self.data.save(self.session))
+        # timer d'écriture des données reçues sur le disque dur
+        utils.init_qtimer(self, 5000, lambda: self.data.save(self.session) if self.session != None else None) # on n'éxecute la fonction save que si la session est ouverte
 
     def handle_log(self, line : str) -> None:
         self.logTextEdit.appendPlainText(line)
 
     def send_command(self, command : int) -> None:
-        self.serial.write(command)
+        self.serial.write(bytes(command))
         self.logger.log(f'Commande {command} envoyée')
 
     def session_button(self) -> None:
@@ -121,14 +123,16 @@ class MainWindow(QtWidgets.QMainWindow):
         self.graph_data['gyroY'] = GraphData(self.gyroGraph, 'y', (0, 255, 0))
         self.graph_data['gyroZ'] = GraphData(self.gyroGraph, 'z', (0, 0, 255))
 
-    def update_data(self):
+    def update_data(self) -> None:
         if not self.serial.is_open:
             return
 
-        data = self.serial.readline()
-        data = self.data.process(data)
-
-        if not data:
+        raw_data = self.serial.readline()
+        
+        try:
+            data = self.data.process(raw_data)
+        except IntegrityCheckException as err:
+            self.logger.log('Vérification des données échouée:', str(err), raw_data)
             return
 
         self.graph_data['temp'].append(data['temp'])
@@ -139,7 +143,7 @@ class MainWindow(QtWidgets.QMainWindow):
         self.graph_data['gyroY'].append(data['gyroY'])
         self.graph_data['gyroZ'].append(data['gyroZ'])
 
-    def update_data_random(self):
+    def update_data_random(self) -> None:
         self.graph_data['temp'].append(math.sin(time.monotonic()*2))
         self.graph_data['accX'].append(math.sin(time.monotonic()*2))
         self.graph_data['accY'].append(math.sin(time.monotonic()*2+1))
