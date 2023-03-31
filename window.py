@@ -18,6 +18,8 @@ class MainWindow(QtWidgets.QMainWindow):
     def __init__(self, *args, **kwargs):
         super(MainWindow, self).__init__(*args, **kwargs)
 
+    test_mode = False
+
     def init(self, settings : Settings, logger : Logger) -> None: # fonction séparée pour pouvoir passer les args (non autorisé par la classe QMainWindow sinon)
         self.settings = settings
         self.logger = logger
@@ -64,8 +66,9 @@ class MainWindow(QtWidgets.QMainWindow):
         self.logTextEdit.appendPlainText(line)
 
     def send_command(self, command : int) -> None:
-        self.serial.write(bytes(command))
-        self.logger.log(f'Commande {command} envoyée')
+        if self.serial.is_open and not self.test_mode:
+            self.serial.write(bytes(command))
+            self.logger.log(f'Commande {command} envoyée')
 
     def session_button(self) -> None:
         if self.session == None: # session fermé, on doit alors la créer
@@ -91,7 +94,18 @@ class MainWindow(QtWidgets.QMainWindow):
             self.timerLabel.setText('t+0s')
 
     def connect_serial(self, device_index : int) -> None:
-        if device_index == len(self.serial_list): # dernier élément du combobox, élément "Déconnecter"
+        combobox_items = [self.serialComboBox.itemText(i) for i in range(self.serialComboBox.count())]
+        if self.test_mode and combobox_items[device_index] == 'Déconnecter':
+                self.logger.log('Fermeture du mode test')
+                self.serial.is_open = False
+                self.test_mode = False
+
+        elif combobox_items[device_index] == 'TEST':
+            self.logger.log('Activation du mode test')
+            self.serial.is_open = True
+            self.test_mode = True
+            
+        elif combobox_items[device_index] == 'Déconnecter': # dernier élément du combobox, élément "Déconnecter"
             if self.serial.is_open:
                 self.logger.log(f'Déconnexion du port série {self.serial.port}')
                 self.serial.close()
@@ -101,13 +115,12 @@ class MainWindow(QtWidgets.QMainWindow):
             self.serial.port = self.serial_list[device_index].device # on prends le port série sélectionner dans le combobox
             self.logger.log(f'Connexion au port série {self.serial.port}')
             self.serial.open()
-
-
     def update_serial_list(self):
         self.serialComboBox.clear() # on enlève tous les élements du combobox
         self.serial_list = serial.tools.list_ports.comports()
         for device in self.serial_list:
             self.serialComboBox.addItem(device.device + ' : ' + device.description) # on ajoute le port à la liste (port + nom)
+        self.serialComboBox.addItem('TEST')
         self.serialComboBox.addItem('Déconnecter')
 
     graph_data = {}
@@ -127,8 +140,11 @@ class MainWindow(QtWidgets.QMainWindow):
         if not self.serial.is_open:
             return
 
-        raw_data = self.serial.readline()
-        
+        if not self.test_mode:
+            raw_data = self.serial.readline()
+        else:
+            raw_data = self.generate_test_data()
+
         try:
             data = self.data.process(raw_data)
         except IntegrityCheckException as err:
@@ -143,11 +159,14 @@ class MainWindow(QtWidgets.QMainWindow):
         self.graph_data['gyroY'].append(data['gyroY'])
         self.graph_data['gyroZ'].append(data['gyroZ'])
 
-    def update_data_random(self) -> None:
-        self.graph_data['temp'].append(math.sin(time.monotonic()*2))
-        self.graph_data['accX'].append(math.sin(time.monotonic()*2))
-        self.graph_data['accY'].append(math.sin(time.monotonic()*2+1))
-        self.graph_data['accZ'].append(math.sin(time.monotonic()*2+2))
-        self.graph_data['gyroX'].append(math.sin(time.monotonic()*2))
-        self.graph_data['gyroY'].append(math.sin(time.monotonic()*2+1))
-        self.graph_data['gyroZ'].append(math.sin(time.monotonic()*2+2))
+    def generate_test_data(self) -> bytes:        
+        clock = time.monotonic()
+        temp = round(math.sin(time.monotonic()*2), 2)
+        accX = round(math.sin(time.monotonic()*2), 2)
+        accY = round(math.sin(time.monotonic()*2+1), 2)
+        accZ = round(math.sin(time.monotonic()*2+2), 2)
+        gyroX = round(math.sin(time.monotonic()*2), 2)
+        gyroY = round(math.sin(time.monotonic()*2+1), 2)
+        gyroZ = round(math.sin(time.monotonic()*2+2), 2)
+
+        return f'{clock},{accX},{accY},{accZ},{gyroX},{gyroY},{gyroZ},{temp}\r\n'.encode('ascii')
