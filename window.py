@@ -45,12 +45,11 @@ class MainWindow(QtWidgets.QMainWindow):
 
         self.resetGyroButton.clicked.connect(lambda: self.send_command(0))
 
-        # timer qui refresh la liste des ports séries
         self.update_serial_list()
-        utils.init_qtimer(self, 5000, self.update_serial_list)
-        self.serialComboBox.activated.connect(self.connect_serial)
+        self.serialComboBox.activated.connect(self.handle_serial_combobox)
 
         # timer pour l'horloge
+        self.update_clock()
         utils.init_qtimer(self, 1000, self.update_clock)
 
         # timer pour le timer (?)
@@ -93,19 +92,24 @@ class MainWindow(QtWidgets.QMainWindow):
         else:
             self.timerLabel.setText('t+0s')
 
-    def connect_serial(self, device_index : int) -> None:
+    def handle_serial_combobox(self, device_index : int) -> None:
         combobox_items = [self.serialComboBox.itemText(i) for i in range(self.serialComboBox.count())]
-        if self.test_mode and combobox_items[device_index] == 'Déconnecter':
+        selected_item = combobox_items[device_index]
+
+        if self.test_mode and selected_item == 'Déconnecter':
                 self.logger.log('Fermeture du mode test')
                 self.serial.is_open = False
                 self.test_mode = False
 
-        elif combobox_items[device_index] == 'TEST':
+        elif selected_item == 'TEST':
             self.logger.log('Activation du mode test')
             self.serial.is_open = True
             self.test_mode = True
+
+        elif selected_item == 'Actualiser':
+            pass # dans tous les cas, la liste est actualisée à la fin de la fonction
             
-        elif combobox_items[device_index] == 'Déconnecter': # dernier élément du combobox, élément "Déconnecter"
+        elif selected_item == 'Déconnecter': # dernier élément du combobox, élément "Déconnecter"
             if self.serial.is_open:
                 self.logger.log(f'Déconnexion du port série {self.serial.port}')
                 self.serial.close()
@@ -115,12 +119,16 @@ class MainWindow(QtWidgets.QMainWindow):
             self.serial.port = self.serial_list[device_index].device # on prends le port série sélectionner dans le combobox
             self.logger.log(f'Connexion au port série {self.serial.port}')
             self.serial.open()
+
+        self.update_serial_list()
+    
     def update_serial_list(self):
         self.serialComboBox.clear() # on enlève tous les élements du combobox
         self.serial_list = serial.tools.list_ports.comports()
         for device in self.serial_list:
             self.serialComboBox.addItem(device.device + ' : ' + device.description) # on ajoute le port à la liste (port + nom)
         self.serialComboBox.addItem('TEST')
+        self.serialComboBox.addItem('Actualiser')
         self.serialComboBox.addItem('Déconnecter')
 
     graph_data = {}
@@ -135,6 +143,7 @@ class MainWindow(QtWidgets.QMainWindow):
         self.graph_data['gyroX'] = GraphData(self.gyroGraph, 'x', (255, 0, 0))
         self.graph_data['gyroY'] = GraphData(self.gyroGraph, 'y', (0, 255, 0))
         self.graph_data['gyroZ'] = GraphData(self.gyroGraph, 'z', (0, 0, 255))
+        self.graph_data['misc'] = GraphData(self.graph, '', (255, 0, 0))
 
     def update_data(self) -> None:
         if not self.serial.is_open:
