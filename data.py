@@ -6,6 +6,11 @@ from logger import Logger
 class IntegrityCheckException(Exception):
     pass
 
+
+class ConnectionTimeoutException(Exception):
+    pass
+
+
 class Data:
     buffer = bytes()
 
@@ -27,7 +32,7 @@ class Data:
             raise IntegrityCheckException('Incorrect encoding')
 
         data_list = data_str.split(',') # toutes les données sont séparées par des virgules
-        if len(data_list) != 8: # il doit avoir exactement 8 éléments de données
+        if len(data_list) != 11: # il doit avoir exactement 8 éléments de données
             raise IntegrityCheckException('Incorrect data length')
         
         try:
@@ -37,6 +42,8 @@ class Data:
         
         return data_list
 
+    last_packet = 0
+
     def process(self, raw_data : bytes) -> dict[str, float]:
         data = self.check(raw_data)
         
@@ -44,13 +51,16 @@ class Data:
 
         data = { # on assigne un nom aux données
             'time': data[0],
-            'accX': data[1],
-            'accY': data[2],
-            'accZ': data[3],
-            'gyroX': data[4],
-            'gyroY': data[5],
-            'gyroZ': data[6],
-            'temp': data[7]
+            'state': data[1],
+            'accX': data[2],
+            'accY': data[3],
+            'accZ': data[4],
+            'gyroX': data[5],
+            'gyroY': data[6],
+            'gyroZ': data[7],
+            'temp': data[8],
+            'leftSpeed': data[9],
+            'rightSpeed': data[10]
         }
 
         return data

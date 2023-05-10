@@ -2,6 +2,7 @@ from PyQt5 import QtWidgets, QtCore, uic
 import serial.tools.list_ports
 from datetime import datetime
 import serial
+import serial.serialutil
 import math
 import time
 import subprocess
@@ -44,6 +45,10 @@ class MainWindow(QtWidgets.QMainWindow):
         self.sessionLabel.mousePressEvent = lambda e: self.open_session_folder()
 
         self.resetGyroButton.clicked.connect(lambda: self.send_command(0))
+        self.incSpeedButton.clicked.connect(lambda: self.send_command(1))
+        self.decSpeedButton.clicked.connect(lambda: self.send_command(2))
+        self.startButton.clicked.connect(lambda: self.send_command(3))
+        self.stopButton.clicked.connect(lambda: self.send_command(4))
 
         self.update_serial_list()
         self.serialComboBox.activated.connect(self.handle_serial_combobox)
@@ -56,7 +61,7 @@ class MainWindow(QtWidgets.QMainWindow):
         utils.init_qtimer(self, 10, self.update_timer)
 
         # timer principal pour la mise à jour des données
-        utils.init_qtimer(self, 50, self.update_data)
+        utils.init_qtimer(self, 50, self.update)
 
         # timer d'écriture des données reçues sur le disque dur
         utils.init_qtimer(self, 5000, lambda: self.data.save(self.session) if self.session != None else None) # on n'éxecute la fonction save que si la session est ouverte
@@ -64,9 +69,10 @@ class MainWindow(QtWidgets.QMainWindow):
     def handle_log(self, line : str) -> None:
         self.logTextEdit.appendPlainText(line)
 
-    def send_command(self, command : int) -> None:
+    def send_command(self, command : str) -> None:
         if self.serial.is_open and not self.test_mode:
-            self.serial.write(bytes(command))
+            command_ascii = bytes(str(command), 'utf-8')
+            self.serial.write(command_ascii)
             self.logger.log(f'Commande {command} envoyée')
 
     def session_button(self) -> None:
@@ -135,6 +141,7 @@ class MainWindow(QtWidgets.QMainWindow):
     def init_graph(self):
         self.accGraph.addLegend()
         self.gyroGraph.addLegend()
+        self.motorGraph.addLegend()
 
         self.graph_data['temp'] = GraphData(self.tempGraph, 'Temperature', (255, 0, 0))
         self.graph_data['accX'] = GraphData(self.accGraph, 'x', (255, 0, 0))
@@ -143,22 +150,75 @@ class MainWindow(QtWidgets.QMainWindow):
         self.graph_data['gyroX'] = GraphData(self.gyroGraph, 'x', (255, 0, 0))
         self.graph_data['gyroY'] = GraphData(self.gyroGraph, 'y', (0, 255, 0))
         self.graph_data['gyroZ'] = GraphData(self.gyroGraph, 'z', (0, 0, 255))
-        self.graph_data['misc'] = GraphData(self.graph, '', (255, 0, 0))
+
+        self.graph_data['leftSpeed'] = GraphData(self.motorGraph, 'left', (255, 0, 0))
+        self.graph_data['rightSpeed'] = GraphData(self.motorGraph, 'right', (0, 0, 255))
+
+    status = {}
+    last_successful_data = 0
+
+    def update(self) -> None:
+        self.update_data()
+        self.update_status()
 
     def update_data(self) -> None:
+        self.status = {
+            'connexion': 0,
+            'integrite': 0,
+            'recepteur': 0,
+            'timeout': 0,
+
+            'motors': 0,
+            'motorL': 0,
+            'motorR': 0,
+
+            'sensors': 0,
+            'ir': 0,
+            'acc': 0
+        }
+
         if not self.serial.is_open:
+            self.status['connexion'] = 1
+            self.status['recepteur'] = 2
             return
 
+        if time.time() - self.last_successful_data > 4:  # pas de données valides pour plus de 4s
+            self.status['connexion'] = 1
+            self.status['timeout'] = 1
+
         if not self.test_mode:
-            raw_data = self.serial.readline()
+            try:
+                raw_data = self.serial.readline()
+                self.status['recepteur'] = 4
+            except serial.serialutil.SerialException:
+                self.logger.log('Erreur: communication avec le récepteur impossible')
+                self.status['connexion'] = 1
+                self.status['recepteur'] = 1
+                return
         else:
             raw_data = self.generate_test_data()
 
+        if raw_data.decode().split(',')[0] == 'msg':
+            self.telemetryTextEdit.appendPlainText(raw_data.decode().split(',')[1].replace('\r\n', ''))
+            return
+
         try:
             data = self.data.process(raw_data)
+            self.status['connexion'] = 4
+            self.status['integrite'] = 4
         except IntegrityCheckException as err:
             self.logger.log('Vérification des données échouée:', str(err), raw_data)
+            self.status['connexion'] = 1
+            self.status['integrite'] = 1
             return
+
+        if data['leftSpeed'] > 0:
+            self.status['motorL'] = 4
+
+        if data['rightSpeed'] > 0:
+            self.status['motorR'] = 4
+
+        self.last_successful_data = time.time()
 
         self.graph_data['temp'].append(data['temp'])
         self.graph_data['accX'].append(data['accX'])
@@ -168,7 +228,34 @@ class MainWindow(QtWidgets.QMainWindow):
         self.graph_data['gyroY'].append(data['gyroY'])
         self.graph_data['gyroZ'].append(data['gyroZ'])
 
-    def generate_test_data(self) -> bytes:        
+        self.graph_data['leftSpeed'].append(data['leftSpeed'])
+        self.graph_data['rightSpeed'].append(data['rightSpeed'])
+
+        if data['state'] == 0:
+            self.statusLabel_global.setText('READY')
+        elif data['state'] == 1:
+            self.statusLabel_global.setText('FORWARD')
+        elif data['state'] == 2:
+            self.statusLabel_global.setText('TURN')
+        elif data['state'] == -1:
+            self.statusLabel_global.setText('INIT')
+        else:
+            self.statusLabel_global.setText('UNKNOWN')
+
+    def update_status(self) -> None:
+        for item in self.status:
+            if self.status[item] == 0:
+                self.__dict__[f'statusLabel_{item}'].setStyleSheet('background-color: #363636')  # gris
+            elif self.status[item] == 1:
+                self.__dict__[f'statusLabel_{item}'].setStyleSheet('background-color: red')  # rouge
+            elif self.status[item] == 2:
+                self.__dict__[f'statusLabel_{item}'].setStyleSheet('background-color: #f1c40f')  # orange
+            elif self.status[item] == 3:
+                self.__dict__[f'statusLabel_{item}'].setStyleSheet('background-color: #3498db')  # bleu
+            elif self.status[item] == 4:
+                self.__dict__[f'statusLabel_{item}'].setStyleSheet('background-color: #27ae60')  # vert
+
+    def generate_test_data(self) -> bytes:
         clock = time.monotonic()
         temp = round(math.sin(time.monotonic()*2), 2)
         accX = round(math.sin(time.monotonic()*2), 2)

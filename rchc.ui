@@ -85,6 +85,12 @@ QProgressBar {
         <layout class="QVBoxLayout" name="verticalLayout_6">
          <item>
           <widget class="QLabel" name="statusLabel_connexion">
+           <property name="font">
+            <font>
+             <weight>75</weight>
+             <bold>true</bold>
+            </font>
+           </property>
            <property name="text">
             <string>Connexion</string>
            </property>
@@ -136,6 +142,12 @@ QProgressBar {
         <layout class="QVBoxLayout" name="verticalLayout_5">
          <item>
           <widget class="QLabel" name="statusLabel_motors">
+           <property name="font">
+            <font>
+             <weight>75</weight>
+             <bold>true</bold>
+            </font>
+           </property>
            <property name="text">
             <string>Moteurs</string>
            </property>
@@ -184,6 +196,12 @@ QProgressBar {
         <layout class="QVBoxLayout" name="verticalLayout_4">
          <item>
           <widget class="QLabel" name="statusLabel_sensors">
+           <property name="font">
+            <font>
+             <weight>75</weight>
+             <bold>true</bold>
+            </font>
+           </property>
            <property name="text">
             <string>Capteurs</string>
            </property>
@@ -477,10 +495,38 @@ QProgressBar {
     </item>
     <item row="1" column="0" colspan="5">
      <widget class="QGroupBox" name="telemetryBox">
+      <property name="maximumSize">
+       <size>
+        <width>16777215</width>
+        <height>120</height>
+       </size>
+      </property>
       <property name="title">
        <string>Télémétrie</string>
       </property>
-      <layout class="QGridLayout" name="gridLayout_4"/>
+      <layout class="QGridLayout" name="gridLayout_4">
+       <item row="0" column="0">
+        <widget class="QPlainTextEdit" name="telemetryTextEdit">
+         <property name="maximumSize">
+          <size>
+           <width>16777215</width>
+           <height>100</height>
+          </size>
+         </property>
+         <property name="font">
+          <font>
+           <family>Ubuntu Mono</family>
+          </font>
+         </property>
+         <property name="readOnly">
+          <bool>true</bool>
+         </property>
+         <property name="textInteractionFlags">
+          <set>Qt::TextSelectableByKeyboard|Qt::TextSelectableByMouse</set>
+         </property>
+        </widget>
+       </item>
+      </layout>
      </widget>
     </item>
     <item row="2" column="0" colspan="3">
@@ -496,7 +542,7 @@ QProgressBar {
       </property>
       <layout class="QGridLayout" name="gridLayout_3">
        <item row="0" column="1">
-        <widget class="PlotWidget" name="widget" native="true"/>
+        <widget class="PlotWidget" name="motorGraph" native="true"/>
        </item>
        <item row="0" column="0">
         <widget class="PlotWidget" name="tempGraph" native="true"/>
@@ -520,6 +566,34 @@ QProgressBar {
         <widget class="QPushButton" name="resetGyroButton">
          <property name="text">
           <string>Réinitialiser le gyroscope</string>
+         </property>
+        </widget>
+       </item>
+       <item row="1" column="0">
+        <widget class="QPushButton" name="incSpeedButton">
+         <property name="text">
+          <string>Augmenter la vitesse</string>
+         </property>
+        </widget>
+       </item>
+       <item row="1" column="1">
+        <widget class="QPushButton" name="decSpeedButton">
+         <property name="text">
+          <string>Diminuer la vitesse</string>
+         </property>
+        </widget>
+       </item>
+       <item row="2" column="0">
+        <widget class="QPushButton" name="startButton">
+         <property name="text">
+          <string>Démarrer</string>
+         </property>
+        </widget>
+       </item>
+       <item row="2" column="1">
+        <widget class="QPushButton" name="stopButton">
+         <property name="text">
+          <string>Stop</string>
          </property>
         </widget>
        </item>
