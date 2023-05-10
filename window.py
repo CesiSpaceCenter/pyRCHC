@@ -1,27 +1,35 @@
-from PyQt5 import QtWidgets, QtCore, uic
-import serial.tools.list_ports
+import math
+import subprocess
+import time
 from datetime import datetime
+
 import serial
 import serial.serialutil
-import math
-import time
-import subprocess
+import serial.tools.list_ports
+from PyQt5 import QtWidgets, uic
 
 import utils
+from constants import *
 from data import Data, IntegrityCheckException
 from graph import GraphData
-from session import Session
 from logger import Logger
+from session import Session
 from settings import Settings
-from constants import *
+
 
 class MainWindow(QtWidgets.QMainWindow):
     def __init__(self, *args, **kwargs):
         super(MainWindow, self).__init__(*args, **kwargs)
 
+    logger = None
+    settings = None
+    session = None
+    data = None
+    serial = None
     test_mode = False
 
-    def init(self, settings : Settings, logger : Logger) -> None: # fonction séparée pour pouvoir passer les args (non autorisé par la classe QMainWindow sinon)
+    # fonction séparée pour pouvoir passer les args (non autorisé par la classe QMainWindow sinon)
+    def init(self, settings: Settings, logger: Logger) -> None:
         self.settings = settings
         self.logger = logger
 
@@ -38,8 +46,6 @@ class MainWindow(QtWidgets.QMainWindow):
         self.serial.timeout = 0.5
 
         self.data = Data(self.logger)
-
-        self.session = None
 
         self.sessionButton.clicked.connect(self.session_button)
         self.sessionLabel.mousePressEvent = lambda e: self.open_session_folder()
@@ -64,25 +70,26 @@ class MainWindow(QtWidgets.QMainWindow):
         utils.init_qtimer(self, 50, self.update)
 
         # timer d'écriture des données reçues sur le disque dur
-        utils.init_qtimer(self, 5000, lambda: self.data.save(self.session) if self.session != None else None) # on n'éxecute la fonction save que si la session est ouverte
+        # on n'exécute la fonction save que si la session est ouverte
+        utils.init_qtimer(self, 5000, lambda: self.data.save(self.session) if self.session is not None else None)
 
-    def handle_log(self, line : str) -> None:
+    def handle_log(self, line: str) -> None:
         self.logTextEdit.appendPlainText(line)
 
-    def send_command(self, command : str) -> None:
+    def send_command(self, command: int) -> None:
         if self.serial.is_open and not self.test_mode:
             command_ascii = bytes(str(command), 'utf-8')
             self.serial.write(command_ascii)
             self.logger.log(f'Commande {command} envoyée')
 
     def session_button(self) -> None:
-        if self.session == None: # session fermé, on doit alors la créer
+        if self.session is None:  # session fermée, on doit alors la créer
             self.session = Session(self, self.logger)
-        else: # session déjà ouverte, on doit alors la fermer
+        else:  # session déjà ouverte, on doit alors la fermer
             self.session.end()
 
     def open_session_folder(self) -> None:
-        if self.session != None:
+        if self.session is not None:
             subprocess.Popen(['open', self.session.folder])
         else:
             subprocess.Popen(['open', SESSION_DIR])
@@ -91,21 +98,23 @@ class MainWindow(QtWidgets.QMainWindow):
         date_time = datetime.now().strftime('%d/%m/%Y %H:%M:%S')
         self.clockLabel.setText(date_time)
 
+    serial_list = None
+
     def update_timer(self) -> None:
-        if self.session != None:
+        if self.session is not None:
             date_time = round((datetime.now() - self.session.timer_start).total_seconds(), 1)
             self.timerLabel.setText('t+' + str(date_time) + 's')
         else:
             self.timerLabel.setText('t+0s')
 
-    def handle_serial_combobox(self, device_index : int) -> None:
+    def handle_serial_combobox(self, device_index: int) -> None:
         combobox_items = [self.serialComboBox.itemText(i) for i in range(self.serialComboBox.count())]
         selected_item = combobox_items[device_index]
 
         if self.test_mode and selected_item == 'Déconnecter':
-                self.logger.log('Fermeture du mode test')
-                self.serial.is_open = False
-                self.test_mode = False
+            self.logger.log('Fermeture du mode test')
+            self.serial.is_open = False
+            self.test_mode = False
 
         elif selected_item == 'TEST':
             self.logger.log('Activation du mode test')
@@ -113,32 +122,35 @@ class MainWindow(QtWidgets.QMainWindow):
             self.test_mode = True
 
         elif selected_item == 'Actualiser':
-            pass # dans tous les cas, la liste est actualisée à la fin de la fonction
-            
-        elif selected_item == 'Déconnecter': # dernier élément du combobox, élément "Déconnecter"
+            pass  # dans tous les cas, la liste est actualisée à la fin de la fonction
+
+        elif selected_item == 'Déconnecter':  # dernier élément du combobox, élément "Déconnecter"
             if self.serial.is_open:
                 self.logger.log(f'Déconnexion du port série {self.serial.port}')
                 self.serial.close()
         else:
-            if self.serial.is_open: # si la connexion est déjà ouverte
-                self.serial.close() # on la ferme
-            self.serial.port = self.serial_list[device_index].device # on prends le port série sélectionner dans le combobox
+            if self.serial.is_open:  # si la connexion est déjà ouverte
+                self.serial.close()  # on la ferme
+            self.serial.port = self.serial_list[
+                device_index].device  # on prend le port série sélectionné dans le combobox
             self.logger.log(f'Connexion au port série {self.serial.port}')
             self.serial.open()
 
         self.update_serial_list()
-    
-    def update_serial_list(self):
-        self.serialComboBox.clear() # on enlève tous les élements du combobox
+
+    def update_serial_list(self) -> None:
+        self.serialComboBox.clear()  # on enlève tous les élements du combobox
         self.serial_list = serial.tools.list_ports.comports()
         for device in self.serial_list:
-            self.serialComboBox.addItem(device.device + ' : ' + device.description) # on ajoute le port à la liste (port + nom)
+            self.serialComboBox.addItem(
+                device.device + ' : ' + device.description)  # on ajoute le port à la liste (port + nom)
         self.serialComboBox.addItem('TEST')
         self.serialComboBox.addItem('Actualiser')
         self.serialComboBox.addItem('Déconnecter')
 
     graph_data = {}
-    def init_graph(self):
+
+    def init_graph(self) -> None:
         self.accGraph.addLegend()
         self.gyroGraph.addLegend()
         self.motorGraph.addLegend()
@@ -257,12 +269,12 @@ class MainWindow(QtWidgets.QMainWindow):
 
     def generate_test_data(self) -> bytes:
         clock = time.monotonic()
-        temp = round(math.sin(time.monotonic()*2), 2)
-        accX = round(math.sin(time.monotonic()*2), 2)
-        accY = round(math.sin(time.monotonic()*2+1), 2)
-        accZ = round(math.sin(time.monotonic()*2+2), 2)
-        gyroX = round(math.sin(time.monotonic()*2), 2)
-        gyroY = round(math.sin(time.monotonic()*2+1), 2)
-        gyroZ = round(math.sin(time.monotonic()*2+2), 2)
+        temp = round(math.sin(time.monotonic() * 2), 2)
+        accX = round(math.sin(time.monotonic() * 2), 2)
+        accY = round(math.sin(time.monotonic() * 2 + 1), 2)
+        accZ = round(math.sin(time.monotonic() * 2 + 2), 2)
+        gyroX = round(math.sin(time.monotonic() * 2), 2)
+        gyroY = round(math.sin(time.monotonic() * 2 + 1), 2)
+        gyroZ = round(math.sin(time.monotonic() * 2 + 2), 2)
 
         return f'{clock},{accX},{accY},{accZ},{gyroX},{gyroY},{gyroZ},{temp}\r\n'.encode('ascii')

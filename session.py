@@ -1,30 +1,30 @@
 import uuid
-import os
 from datetime import datetime
 
-from constants import *
 import utils
+from constants import *
+
 
 class Session:
-    def __init__(self, MainWindow, logger) -> None:
-        self.MainWindow = MainWindow
+    def __init__(self, main_window, logger) -> None:
+        self.main_window = main_window
         self.logger = logger
 
         self.timer_start = datetime.now()
         self.id = str(uuid.uuid4())
-        self.MainWindow.sessionLabel.setText(self.id)
+        self.main_window.sessionLabel.setText(self.id)
         self.folder = os.path.join(SESSION_DIR, self.id)
         os.mkdir(self.folder)
-        self.MainWindow.sessionButton.setText('Terminer la session')
+        self.main_window.sessionButton.setText('Terminer la session')
         self.logger.log('Nouvelle session:', self.id)
 
     def end(self) -> None:
-        for i in self.MainWindow.graph_data:
-            self.MainWindow.graph_data[i].reset() # réinitialisation de tout les graphiques
-        self.MainWindow.sessionLabel.setText('Aucune session en cours')
-        self.MainWindow.sessionButton.setText('Ouvrir une session')
-        self.MainWindow.data.save(self)
-        self.MainWindow.session = None
+        for i in self.main_window.graph_data:
+            self.main_window.graph_data[i].reset()  # réinitialisation de tous les graphiques
+        self.main_window.sessionLabel.setText('Aucune session en cours')
+        self.main_window.sessionButton.setText('Ouvrir une session')
+        self.main_window.data.save(self)
+        self.main_window.session = None
         folder_size = utils.get_dir_size(self.folder)
         self.logger.log(f'Session {self.id} terminée')
         self.logger.log(f'  Débutée à {self.timer_start}')

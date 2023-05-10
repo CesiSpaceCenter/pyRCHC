@@ -1,14 +1,17 @@
-from PyQt5 import QtCore
 import os
 
+from PyQt5 import QtCore
+
+
 # créer un QTimer en 1 ligne, au lieu de 4
-def init_qtimer(parent, interval : int, connector) -> None:
+def init_qtimer(parent, interval: int, connector) -> None:
     timer = QtCore.QTimer(parent)
     timer.setInterval(interval)
     timer.timeout.connect(connector)
     timer.start()
 
-def get_dir_size(path : str) -> int:
+
+def get_dir_size(path: str) -> int:
     total = 0
     with os.scandir(path) as it:
         for entry in it:

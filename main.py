@@ -1,13 +1,14 @@
-from PyQt5 import QtWidgets
-import pyqtgraph as pg
 import sys
 
+import pyqtgraph as pg
+from PyQt5 import QtWidgets
+
 from constants import *
-from window import MainWindow
 from logger import Logger
 from settings import Settings
+from window import MainWindow
 
-pg.setConfigOption('background', (0,0,0, 0)) # fond transparent
+pg.setConfigOption('background', (0, 0, 0, 0))  # fond transparent
 pg.setConfigOption('antialias', True)
 
 if __name__ == '__main__':
