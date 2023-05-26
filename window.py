@@ -26,7 +26,6 @@ class MainWindow(QtWidgets.QMainWindow):
     session = None
     data = None
     serial = None
-    test_mode = False
 
     # fonction séparée pour pouvoir passer les args (non autorisé par la classe QMainWindow sinon)
     def init(self, settings: Settings, logger: Logger) -> None:
@@ -77,7 +76,7 @@ class MainWindow(QtWidgets.QMainWindow):
         self.logTextEdit.appendPlainText(line)
 
     def send_command(self, command: int) -> None:
-        if self.serial.is_open and not self.test_mode:
+        if self.serial.is_open:
             command_ascii = bytes(str(command), 'utf-8')
             self.serial.write(command_ascii)
             self.logger.log(f'Commande {command} envoyée')
@@ -111,17 +110,7 @@ class MainWindow(QtWidgets.QMainWindow):
         combobox_items = [self.serialComboBox.itemText(i) for i in range(self.serialComboBox.count())]
         selected_item = combobox_items[device_index]
 
-        if self.test_mode and selected_item == 'Déconnecter':
-            self.logger.log('Fermeture du mode test')
-            self.serial.is_open = False
-            self.test_mode = False
-
-        elif selected_item == 'TEST':
-            self.logger.log('Activation du mode test')
-            self.serial.is_open = True
-            self.test_mode = True
-
-        elif selected_item == 'Actualiser':
+        if selected_item == 'Actualiser':
             pass  # dans tous les cas, la liste est actualisée à la fin de la fonction
 
         elif selected_item == 'Déconnecter':  # dernier élément du combobox, élément "Déconnecter"
@@ -144,7 +133,6 @@ class MainWindow(QtWidgets.QMainWindow):
         for device in self.serial_list:
             self.serialComboBox.addItem(
                 device.device + ' : ' + device.description)  # on ajoute le port à la liste (port + nom)
-        self.serialComboBox.addItem('TEST')
         self.serialComboBox.addItem('Actualiser')
         self.serialComboBox.addItem('Déconnecter')
 
@@ -198,17 +186,14 @@ class MainWindow(QtWidgets.QMainWindow):
             self.status['connexion'] = 1
             self.status['timeout'] = 1
 
-        if not self.test_mode:
-            try:
-                raw_data = self.serial.readline()
-                self.status['recepteur'] = 4
-            except serial.serialutil.SerialException:
-                self.logger.log('Erreur: communication avec le récepteur impossible')
-                self.status['connexion'] = 1
-                self.status['recepteur'] = 1
-                return
-        else:
-            raw_data = self.generate_test_data()
+        try:
+            raw_data = self.serial.readline()
+            self.status['recepteur'] = 4
+        except serial.serialutil.SerialException:
+            self.logger.log('Erreur: communication avec le récepteur impossible')
+            self.status['connexion'] = 1
+            self.status['recepteur'] = 1
+            return
 
         if raw_data.decode().split(',')[0] == 'msg':
             self.telemetryTextEdit.appendPlainText(raw_data.decode().split(',')[1].replace('\r\n', ''))
@@ -266,15 +251,3 @@ class MainWindow(QtWidgets.QMainWindow):
                 self.__dict__[f'statusLabel_{item}'].setStyleSheet('background-color: #3498db')  # bleu
             elif self.status[item] == 4:
                 self.__dict__[f'statusLabel_{item}'].setStyleSheet('background-color: #27ae60')  # vert
-
-    def generate_test_data(self) -> bytes:
-        clock = time.monotonic()
-        temp = round(math.sin(time.monotonic() * 2), 2)
-        accX = round(math.sin(time.monotonic() * 2), 2)
-        accY = round(math.sin(time.monotonic() * 2 + 1), 2)
-        accZ = round(math.sin(time.monotonic() * 2 + 2), 2)
-        gyroX = round(math.sin(time.monotonic() * 2), 2)
-        gyroY = round(math.sin(time.monotonic() * 2 + 1), 2)
-        gyroZ = round(math.sin(time.monotonic() * 2 + 2), 2)
-
-        return f'{clock},{accX},{accY},{accZ},{gyroX},{gyroY},{gyroZ},{temp}\r\n'.encode('ascii')
