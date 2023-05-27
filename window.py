@@ -73,7 +73,21 @@ class MainWindow(QtWidgets.QMainWindow):
         utils.init_qtimer(self, 5000, lambda: self.data.save(self.session) if self.session is not None else None)
 
     def handle_log(self, line: str) -> None:
-        self.logTextEdit.appendPlainText(line)
+        last_line = self.logTextEdit.toPlainText().split('\n')[-1]  # on récupère la dernière ligne
+        if last_line.startswith(line):  # si la dernière ligne a le même début que la ligne que l'on veut ajouter
+            num = re.findall(r'\d+', last_line.replace(line, ''))  # on cherche le numéro dans la fin de la dernière ligne
+            if not num:  # s'il n'y en a pas
+                # cela signifie que c'était la première ligne
+                # on rajoute donc le suffixe pour indiquer que la ligne se répète
+                self.logTextEdit.appendPlainText(' (x2)')
+            else:  # s'il y en a
+                # cela signifie que la dernière ligne était déjà répétée
+                num = int(num[0]) + 1  # on ajoute 1 au nombre de répétitions
+                # on prend le texte, on enlève le nombre de répétitions de la ligne précédente
+                # puis on ajoute le nouveau
+                self.logTextEdit.setPlainText(' '.join(self.logTextEdit.toPlainText().split(' ')[:-1]) + f' (x{num})')
+        else:  # si c'est une nouvelle ligne, on l'ajoute juste à la suite
+            self.logTextEdit.appendPlainText(line)
 
     def send_command(self, command: int) -> None:
         if self.serial.is_open:
