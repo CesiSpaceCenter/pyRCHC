@@ -6,8 +6,9 @@ from datetime import datetime
 import serial
 import serial.serialutil
 import serial.tools.list_ports
-from PyQt5 import QtWidgets, uic
+from PyQt5 import QtWidgets
 
+import ui
 import utils
 from constants import *
 from data import Data, IntegrityCheckException
@@ -17,9 +18,10 @@ from session import Session
 from settings import Settings
 
 
-class MainWindow(QtWidgets.QMainWindow):
+class MainWindow(QtWidgets.QMainWindow, ui.Ui_MainWindow):
     def __init__(self, *args, **kwargs):
         super(MainWindow, self).__init__(*args, **kwargs)
+        self.setupUi(self)
 
     logger = None
     settings = None
