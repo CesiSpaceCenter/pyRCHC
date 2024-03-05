@@ -1,4 +1,5 @@
 import math
+import re
 import subprocess
 import time
 from datetime import datetime
@@ -11,7 +12,7 @@ from PyQt5 import QtWidgets
 import ui
 import utils
 from constants import *
-from data import Data, IntegrityCheckException
+from data import Data, DataCheckException, ConnectionTimeoutException, DecodeException, IncorrectConfigurationException
 from graph import GraphData
 from logger import Logger
 from session import Session
@@ -36,7 +37,7 @@ class MainWindow(QtWidgets.QMainWindow, ui.Ui_MainWindow):
 
         self.logger.log('Création de la fenêtre')
 
-        uic.loadUi('rchc.ui', self)
+        #uic.loadUi('rchc.ui', self)
         self.show()
         self.init_graph()
 
@@ -46,7 +47,7 @@ class MainWindow(QtWidgets.QMainWindow, ui.Ui_MainWindow):
         self.serial.baudrate = 9600
         self.serial.timeout = 0.5
 
-        self.data = Data(self.logger)
+        self.data = Data(self.logger, self.serial)
 
         self.sessionButton.clicked.connect(self.session_button)
         self.sessionLabel.mousePressEvent = lambda e: self.open_session_folder()
@@ -180,82 +181,40 @@ class MainWindow(QtWidgets.QMainWindow, ui.Ui_MainWindow):
         self.update_status()
 
     def update_data(self) -> None:
-        self.status = {
+        status = {
             'connexion': 0,
             'integrite': 0,
             'recepteur': 0,
-            'timeout': 0,
-
-            'motors': 0,
-            'motorL': 0,
-            'motorR': 0,
-
-            'sensors': 0,
-            'ir': 0,
-            'acc': 0
+            'timeout': 0
         }
-
-        if not self.serial.is_open:
-            self.status['connexion'] = 1
-            self.status['recepteur'] = 2
-            return
 
         if time.time() - self.last_successful_data > 4:  # pas de données valides pour plus de 4s
             self.status['connexion'] = 1
             self.status['timeout'] = 1
 
+        if not self.serial.is_open and False:
+            self.status['connexion'] = 1
+            self.status['recepteur'] = 2
+            return
+
         try:
-            raw_data = self.serial.readline()
+            data = self.data.fetch()
             self.status['recepteur'] = 4
         except serial.serialutil.SerialException:
             self.logger.log('Erreur: communication avec le récepteur impossible')
             self.status['connexion'] = 1
             self.status['recepteur'] = 1
             return
-
-        if raw_data.decode().split(',')[0] == 'msg':
-            self.telemetryTextEdit.appendPlainText(raw_data.decode().split(',')[1].replace('\r\n', ''))
-            return
-
-        try:
-            data = self.data.process(raw_data)
-            self.status['connexion'] = 4
-            self.status['integrite'] = 4
-        except IntegrityCheckException as err:
-            self.logger.log('Vérification des données échouée:', str(err), raw_data)
+        except DataCheckException as e:
+            self.logger.log(f'Erreur: {e}')
             self.status['connexion'] = 1
             self.status['integrite'] = 1
             return
-
-        if data['leftSpeed'] > 0:
-            self.status['motorL'] = 4
-
-        if data['rightSpeed'] > 0:
-            self.status['motorR'] = 4
+        except Exception as e:
+            self.logger.log(f'Erreur lors du traitement: {e}')
+            return
 
         self.last_successful_data = time.time()
-
-        self.graph_data['temp'].append(data['temp'])
-        self.graph_data['accX'].append(data['accX'])
-        self.graph_data['accY'].append(data['accY'])
-        self.graph_data['accZ'].append(data['accZ'])
-        self.graph_data['gyroX'].append(data['gyroX'])
-        self.graph_data['gyroY'].append(data['gyroY'])
-        self.graph_data['gyroZ'].append(data['gyroZ'])
-
-        self.graph_data['leftSpeed'].append(data['leftSpeed'])
-        self.graph_data['rightSpeed'].append(data['rightSpeed'])
-
-        if data['state'] == 0:
-            self.statusLabel_global.setText('READY')
-        elif data['state'] == 1:
-            self.statusLabel_global.setText('FORWARD')
-        elif data['state'] == 2:
-            self.statusLabel_global.setText('TURN')
-        elif data['state'] == -1:
-            self.statusLabel_global.setText('INIT')
-        else:
-            self.statusLabel_global.setText('UNKNOWN')
 
     def update_status(self) -> None:
         for item in self.status:
