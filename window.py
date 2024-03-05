@@ -1,4 +1,3 @@
-import math
 import re
 import subprocess
 import time
@@ -12,17 +11,16 @@ from PyQt5 import QtWidgets
 import ui
 import utils
 from constants import *
-from data import Data, DataCheckException, ConnectionTimeoutException, DecodeException, IncorrectConfigurationException
+from data import Data, DataCheckException
 from graph import GraphData
 from logger import Logger
 from session import Session
 from settings import Settings
 
 
-class MainWindow(QtWidgets.QMainWindow, ui.Ui_MainWindow):
+class MainWindow(QtWidgets.QMainWindow, ui.base_ui.Ui_MainWindow):
     def __init__(self, *args, **kwargs):
         super(MainWindow, self).__init__(*args, **kwargs)
-        self.setupUi(self)
 
     logger = None
     settings = None
@@ -37,7 +35,10 @@ class MainWindow(QtWidgets.QMainWindow, ui.Ui_MainWindow):
 
         self.logger.log('Création de la fenêtre')
 
-        #uic.loadUi('rchc.ui', self)
+        self.setupUi(self)  # load the base ui
+        # load the custom ui
+        self.custom_ui = ui.Ui(self)
+
         self.show()
         self.init_graph()
 
@@ -51,12 +52,6 @@ class MainWindow(QtWidgets.QMainWindow, ui.Ui_MainWindow):
 
         self.sessionButton.clicked.connect(self.session_button)
         self.sessionLabel.mousePressEvent = lambda e: self.open_session_folder()
-
-        self.resetGyroButton.clicked.connect(lambda: self.send_command(0))
-        self.incSpeedButton.clicked.connect(lambda: self.send_command(1))
-        self.decSpeedButton.clicked.connect(lambda: self.send_command(2))
-        self.startButton.clicked.connect(lambda: self.send_command(3))
-        self.stopButton.clicked.connect(lambda: self.send_command(4))
 
         self.update_serial_list()
         self.serialComboBox.activated.connect(self.handle_serial_combobox)
@@ -93,12 +88,6 @@ class MainWindow(QtWidgets.QMainWindow, ui.Ui_MainWindow):
             self.logTextEdit.appendPlainText(line)
 
         self.logTextEdit.verticalScrollBar().setValue(self.logTextEdit.verticalScrollBar().maximum())  #  on scroll à la fin
-
-    def send_command(self, command: int) -> None:
-        if self.serial.is_open:
-            command_ascii = bytes(str(command), 'utf-8')
-            self.serial.write(command_ascii)
-            self.logger.log(f'Commande {command} envoyée')
 
     def session_button(self) -> None:
         if self.session is None:  # session fermée, on doit alors la créer
@@ -158,7 +147,7 @@ class MainWindow(QtWidgets.QMainWindow, ui.Ui_MainWindow):
     graph_data = {}
 
     def init_graph(self) -> None:
-        self.accGraph.addLegend()
+        """self.accGraph.addLegend()
         self.gyroGraph.addLegend()
         self.motorGraph.addLegend()
 
@@ -171,7 +160,7 @@ class MainWindow(QtWidgets.QMainWindow, ui.Ui_MainWindow):
         self.graph_data['gyroZ'] = GraphData(self.gyroGraph, 'z', (0, 0, 255))
 
         self.graph_data['leftSpeed'] = GraphData(self.motorGraph, 'left', (255, 0, 0))
-        self.graph_data['rightSpeed'] = GraphData(self.motorGraph, 'right', (0, 0, 255))
+        self.graph_data['rightSpeed'] = GraphData(self.motorGraph, 'right', (0, 0, 255))"""
 
     status = {}
     last_successful_data = 0

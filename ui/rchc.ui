@@ -86,7 +86,6 @@ QProgressBar {
          <property name="font">
           <font>
            <pointsize>30</pointsize>
-           <weight>75</weight>
            <bold>true</bold>
           </font>
          </property>
@@ -161,7 +160,6 @@ QProgressBar {
           <font>
            <family>Ubuntu Mono</family>
            <pointsize>14</pointsize>
-           <weight>50</weight>
            <bold>false</bold>
           </font>
          </property>
@@ -170,333 +168,6 @@ QProgressBar {
          </property>
          <property name="alignment">
           <set>Qt::AlignCenter</set>
-         </property>
-        </widget>
-       </item>
-      </layout>
-     </widget>
-    </item>
-    <item row="1" column="0" colspan="5">
-     <widget class="QGroupBox" name="telemetryBox">
-      <property name="maximumSize">
-       <size>
-        <width>16777215</width>
-        <height>120</height>
-       </size>
-      </property>
-      <property name="title">
-       <string>Télémétrie</string>
-      </property>
-      <layout class="QHBoxLayout" name="horizontalLayout_2">
-       <item>
-        <layout class="QGridLayout" name="gridLayout_4">
-         <item row="1" column="0">
-          <widget class="QLabel" name="label_9">
-           <property name="text">
-            <string>Vitesse</string>
-           </property>
-          </widget>
-         </item>
-         <item row="0" column="1">
-          <widget class="QLCDNumber" name="lcdNumber"/>
-         </item>
-         <item row="0" column="0">
-          <widget class="QLabel" name="label_8">
-           <property name="text">
-            <string>Accel</string>
-           </property>
-          </widget>
-         </item>
-         <item row="1" column="3">
-          <widget class="QLabel" name="label_11">
-           <property name="text">
-            <string>Tension</string>
-           </property>
-          </widget>
-         </item>
-         <item row="0" column="3">
-          <widget class="QLabel" name="label_10">
-           <property name="text">
-            <string>Altitude</string>
-           </property>
-          </widget>
-         </item>
-         <item row="0" column="4">
-          <widget class="QLCDNumber" name="lcdNumber_3"/>
-         </item>
-         <item row="1" column="1">
-          <widget class="QLCDNumber" name="lcdNumber_2"/>
-         </item>
-         <item row="1" column="4">
-          <widget class="QLCDNumber" name="lcdNumber_4"/>
-         </item>
-         <item row="0" column="2">
-          <spacer name="horizontalSpacer">
-           <property name="orientation">
-            <enum>Qt::Horizontal</enum>
-           </property>
-           <property name="sizeType">
-            <enum>QSizePolicy::Minimum</enum>
-           </property>
-           <property name="sizeHint" stdset="0">
-            <size>
-             <width>40</width>
-             <height>20</height>
-            </size>
-           </property>
-          </spacer>
-         </item>
-        </layout>
-       </item>
-       <item>
-        <widget class="QPlainTextEdit" name="telemetryTextEdit">
-         <property name="font">
-          <font>
-           <family>Ubuntu Mono</family>
-          </font>
-         </property>
-         <property name="readOnly">
-          <bool>true</bool>
-         </property>
-         <property name="textInteractionFlags">
-          <set>Qt::TextSelectableByKeyboard|Qt::TextSelectableByMouse</set>
-         </property>
-        </widget>
-       </item>
-      </layout>
-     </widget>
-    </item>
-    <item row="0" column="2" colspan="2">
-     <widget class="QGroupBox" name="statusBox">
-      <property name="minimumSize">
-       <size>
-        <width>650</width>
-        <height>0</height>
-       </size>
-      </property>
-      <property name="maximumSize">
-       <size>
-        <width>650</width>
-        <height>250</height>
-       </size>
-      </property>
-      <property name="title">
-       <string>Status unitaire</string>
-      </property>
-      <layout class="QHBoxLayout" name="horizontalLayout">
-       <item>
-        <layout class="QVBoxLayout" name="verticalLayout_6">
-         <item>
-          <widget class="QLabel" name="statusLabel_connexion">
-           <property name="font">
-            <font>
-             <weight>75</weight>
-             <bold>true</bold>
-            </font>
-           </property>
-           <property name="text">
-            <string>Connexion</string>
-           </property>
-           <property name="alignment">
-            <set>Qt::AlignCenter</set>
-           </property>
-          </widget>
-         </item>
-         <item>
-          <widget class="QLabel" name="statusLabel_recepteur">
-           <property name="text">
-            <string>Récepteur</string>
-           </property>
-           <property name="alignment">
-            <set>Qt::AlignCenter</set>
-           </property>
-          </widget>
-         </item>
-         <item>
-          <widget class="QLabel" name="statusLabel_integrite">
-           <property name="text">
-            <string>Intégrité</string>
-           </property>
-           <property name="alignment">
-            <set>Qt::AlignCenter</set>
-           </property>
-          </widget>
-         </item>
-         <item>
-          <widget class="QLabel" name="statusLabel_timeout">
-           <property name="text">
-            <string>Timeout</string>
-           </property>
-           <property name="alignment">
-            <set>Qt::AlignCenter</set>
-           </property>
-          </widget>
-         </item>
-         <item>
-          <widget class="QLabel" name="label_3">
-           <property name="text">
-            <string/>
-           </property>
-          </widget>
-         </item>
-        </layout>
-       </item>
-       <item>
-        <layout class="QVBoxLayout" name="verticalLayout_5">
-         <item>
-          <widget class="QLabel" name="statusLabel_motors">
-           <property name="font">
-            <font>
-             <weight>75</weight>
-             <bold>true</bold>
-            </font>
-           </property>
-           <property name="text">
-            <string>Moteurs</string>
-           </property>
-           <property name="alignment">
-            <set>Qt::AlignCenter</set>
-           </property>
-          </widget>
-         </item>
-         <item>
-          <widget class="QLabel" name="statusLabel_motorL">
-           <property name="text">
-            <string>Moteurs gauche</string>
-           </property>
-           <property name="alignment">
-            <set>Qt::AlignCenter</set>
-           </property>
-          </widget>
-         </item>
-         <item>
-          <widget class="QLabel" name="statusLabel_motorR">
-           <property name="text">
-            <string>Moteurs droite</string>
-           </property>
-           <property name="alignment">
-            <set>Qt::AlignCenter</set>
-           </property>
-          </widget>
-         </item>
-         <item>
-          <widget class="QLabel" name="label_4">
-           <property name="text">
-            <string/>
-           </property>
-          </widget>
-         </item>
-         <item>
-          <widget class="QLabel" name="label_5">
-           <property name="text">
-            <string/>
-           </property>
-          </widget>
-         </item>
-        </layout>
-       </item>
-       <item>
-        <layout class="QVBoxLayout" name="verticalLayout_4">
-         <item>
-          <widget class="QLabel" name="statusLabel_sensors">
-           <property name="font">
-            <font>
-             <weight>75</weight>
-             <bold>true</bold>
-            </font>
-           </property>
-           <property name="text">
-            <string>Capteurs</string>
-           </property>
-           <property name="alignment">
-            <set>Qt::AlignCenter</set>
-           </property>
-          </widget>
-         </item>
-         <item>
-          <widget class="QLabel" name="statusLabel_ir">
-           <property name="text">
-            <string>Infrarouge</string>
-           </property>
-           <property name="alignment">
-            <set>Qt::AlignCenter</set>
-           </property>
-          </widget>
-         </item>
-         <item>
-          <widget class="QLabel" name="statusLabel_acc">
-           <property name="text">
-            <string>Accéléromètre</string>
-           </property>
-           <property name="alignment">
-            <set>Qt::AlignCenter</set>
-           </property>
-          </widget>
-         </item>
-         <item>
-          <widget class="QLabel" name="label_6">
-           <property name="text">
-            <string/>
-           </property>
-          </widget>
-         </item>
-         <item>
-          <widget class="QLabel" name="label_7">
-           <property name="text">
-            <string/>
-           </property>
-          </widget>
-         </item>
-        </layout>
-       </item>
-      </layout>
-     </widget>
-    </item>
-    <item row="2" column="0" colspan="4">
-     <widget class="QGroupBox" name="graphBox">
-      <property name="title">
-       <string>Graphiques</string>
-      </property>
-      <layout class="QGridLayout" name="gridLayout_3">
-       <item row="0" column="1">
-        <widget class="PlotWidget" name="motorGraph" native="true"/>
-       </item>
-       <item row="0" column="0">
-        <widget class="PlotWidget" name="tempGraph" native="true"/>
-       </item>
-       <item row="1" column="0">
-        <widget class="PlotWidget" name="gyroGraph" native="true"/>
-       </item>
-       <item row="1" column="1">
-        <widget class="PlotWidget" name="accGraph" native="true"/>
-       </item>
-      </layout>
-     </widget>
-    </item>
-    <item row="0" column="4">
-     <widget class="QGroupBox" name="groupBox_2">
-      <property name="maximumSize">
-       <size>
-        <width>16777215</width>
-        <height>250</height>
-       </size>
-      </property>
-      <property name="title">
-       <string>Logs</string>
-      </property>
-      <layout class="QGridLayout" name="gridLayout_5">
-       <item row="0" column="0">
-        <widget class="QPlainTextEdit" name="logTextEdit">
-         <property name="font">
-          <font>
-           <family>Ubuntu Mono</family>
-          </font>
-         </property>
-         <property name="readOnly">
-          <bool>true</bool>
-         </property>
-         <property name="textInteractionFlags">
-          <set>Qt::TextSelectableByKeyboard|Qt::TextSelectableByMouse</set>
          </property>
         </widget>
        </item>
@@ -558,7 +229,6 @@ QProgressBar {
           <font>
            <family>DejaVu Sans</family>
            <pointsize>37</pointsize>
-           <weight>75</weight>
            <bold>true</bold>
           </font>
          </property>
@@ -605,46 +275,215 @@ QProgressBar {
       </layout>
      </widget>
     </item>
-    <item row="2" column="4">
-     <widget class="QGroupBox" name="controlBox">
-      <property name="title">
-       <string>Controle</string>
+    <item row="0" column="4">
+     <widget class="QGroupBox" name="groupBox_2">
+      <property name="maximumSize">
+       <size>
+        <width>16777215</width>
+        <height>250</height>
+       </size>
       </property>
-      <layout class="QGridLayout" name="gridLayout_6">
+      <property name="title">
+       <string>Logs</string>
+      </property>
+      <layout class="QGridLayout" name="gridLayout_5">
        <item row="0" column="0">
-        <widget class="QPushButton" name="resetGyroButton">
-         <property name="text">
-          <string>Réinitialiser le gyroscope</string>
+        <widget class="QPlainTextEdit" name="logTextEdit">
+         <property name="font">
+          <font>
+           <family>Ubuntu Mono</family>
+          </font>
+         </property>
+         <property name="readOnly">
+          <bool>true</bool>
+         </property>
+         <property name="textInteractionFlags">
+          <set>Qt::TextSelectableByKeyboard|Qt::TextSelectableByMouse</set>
          </property>
         </widget>
        </item>
-       <item row="1" column="0">
-        <widget class="QPushButton" name="incSpeedButton">
-         <property name="text">
-          <string>Augmenter la vitesse</string>
-         </property>
-        </widget>
+      </layout>
+     </widget>
+    </item>
+    <item row="0" column="2" colspan="2">
+     <widget class="QGroupBox" name="statusBox">
+      <property name="minimumSize">
+       <size>
+        <width>650</width>
+        <height>0</height>
+       </size>
+      </property>
+      <property name="maximumSize">
+       <size>
+        <width>650</width>
+        <height>250</height>
+       </size>
+      </property>
+      <property name="title">
+       <string>Status unitaire</string>
+      </property>
+      <layout class="QHBoxLayout" name="horizontalLayout">
+       <item>
+        <layout class="QVBoxLayout" name="verticalLayout_6">
+         <item>
+          <widget class="QLabel" name="statusLabel_connexion">
+           <property name="font">
+            <font>
+             <bold>true</bold>
+            </font>
+           </property>
+           <property name="text">
+            <string>Connexion</string>
+           </property>
+           <property name="alignment">
+            <set>Qt::AlignCenter</set>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QLabel" name="statusLabel_recepteur">
+           <property name="text">
+            <string>Récepteur</string>
+           </property>
+           <property name="alignment">
+            <set>Qt::AlignCenter</set>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QLabel" name="statusLabel_integrite">
+           <property name="text">
+            <string>Intégrité</string>
+           </property>
+           <property name="alignment">
+            <set>Qt::AlignCenter</set>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QLabel" name="statusLabel_timeout">
+           <property name="text">
+            <string>Timeout</string>
+           </property>
+           <property name="alignment">
+            <set>Qt::AlignCenter</set>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QLabel" name="label_3">
+           <property name="text">
+            <string/>
+           </property>
+          </widget>
+         </item>
+        </layout>
        </item>
-       <item row="1" column="1">
-        <widget class="QPushButton" name="decSpeedButton">
-         <property name="text">
-          <string>Diminuer la vitesse</string>
-         </property>
-        </widget>
+       <item>
+        <layout class="QVBoxLayout" name="verticalLayout_5">
+         <item>
+          <widget class="QLabel" name="statusLabel_motors">
+           <property name="font">
+            <font>
+             <bold>true</bold>
+            </font>
+           </property>
+           <property name="text">
+            <string>Moteurs</string>
+           </property>
+           <property name="alignment">
+            <set>Qt::AlignCenter</set>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QLabel" name="statusLabel_motorL">
+           <property name="text">
+            <string>Moteurs gauche</string>
+           </property>
+           <property name="alignment">
+            <set>Qt::AlignCenter</set>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QLabel" name="statusLabel_motorR">
+           <property name="text">
+            <string>Moteurs droite</string>
+           </property>
+           <property name="alignment">
+            <set>Qt::AlignCenter</set>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QLabel" name="label_4">
+           <property name="text">
+            <string/>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QLabel" name="label_5">
+           <property name="text">
+            <string/>
+           </property>
+          </widget>
+         </item>
+        </layout>
        </item>
-       <item row="2" column="0">
-        <widget class="QPushButton" name="startButton">
-         <property name="text">
-          <string>Démarrer</string>
-         </property>
-        </widget>
-       </item>
-       <item row="2" column="1">
-        <widget class="QPushButton" name="stopButton">
-         <property name="text">
-          <string>Stop</string>
-         </property>
-        </widget>
+       <item>
+        <layout class="QVBoxLayout" name="verticalLayout_4">
+         <item>
+          <widget class="QLabel" name="statusLabel_sensors">
+           <property name="font">
+            <font>
+             <bold>true</bold>
+            </font>
+           </property>
+           <property name="text">
+            <string>Capteurs</string>
+           </property>
+           <property name="alignment">
+            <set>Qt::AlignCenter</set>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QLabel" name="statusLabel_ir">
+           <property name="text">
+            <string>Infrarouge</string>
+           </property>
+           <property name="alignment">
+            <set>Qt::AlignCenter</set>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QLabel" name="statusLabel_acc">
+           <property name="text">
+            <string>Accéléromètre</string>
+           </property>
+           <property name="alignment">
+            <set>Qt::AlignCenter</set>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QLabel" name="label_6">
+           <property name="text">
+            <string/>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QLabel" name="label_7">
+           <property name="text">
+            <string/>
+           </property>
+          </widget>
+         </item>
+        </layout>
        </item>
       </layout>
      </widget>
@@ -652,14 +491,6 @@ QProgressBar {
    </layout>
   </widget>
  </widget>
- <customwidgets>
-  <customwidget>
-   <class>PlotWidget</class>
-   <extends>QWidget</extends>
-   <header>pyqtgraph</header>
-   <container>1</container>
-  </customwidget>
- </customwidgets>
  <resources/>
  <connections/>
 </ui>
