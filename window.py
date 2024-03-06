@@ -205,6 +205,9 @@ class MainWindow(QtWidgets.QMainWindow, ui.base_ui.Ui_MainWindow):
 
         self.last_successful_data = time.time()
 
+        for element in self.custom_ui.elements:
+            element.set_data(data)
+
     def update_status(self) -> None:
         for item in self.status:
             if self.status[item] == 0:

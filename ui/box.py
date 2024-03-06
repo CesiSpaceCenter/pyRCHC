@@ -17,3 +17,6 @@ class Box:
                              properties['col'],
                              properties['height'],
                              properties['width'])
+
+    def set_data(self, data):
+        pass

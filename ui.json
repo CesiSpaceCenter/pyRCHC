@@ -10,8 +10,9 @@
     "content": [
       {
         "type": "lcd",
-        "name": "lcdAccel",
-        "text": "Accéleration",
+        "name": "lcdAccelZ",
+        "text": "Accéleration Z",
+        "data": "accZ",
         "row": 0,
         "col": 0,
         "width": 1,
@@ -19,11 +20,22 @@
       },
       {
         "type": "lcd",
-        "name": "lcdAccel2",
-        "text": "Accéleration",
+        "name": "lcdAccY",
+        "text": "Accéleration Y",
+        "data": "accY",
         "row": 0,
         "col": 1,
         "width": 1,
+        "height": 1
+      },
+      {
+        "type": "lcd",
+        "name": "lcdAccX",
+        "text": "Accéleration X",
+        "data": "accX",
+        "row": 1,
+        "col": 0,
+        "width": 2,
         "height": 1
       }
     ]
