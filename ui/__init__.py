@@ -1,6 +1,7 @@
 from .base_ui import Ui_MainWindow
 from .box import Box
 from .lcd import Lcd
+from .graph import Graph
 
 import os
 import json
@@ -20,7 +21,8 @@ class Ui:
 
     element_classes = {
         'box': Box,
-        'lcd': Lcd
+        'lcd': Lcd,
+        'graph': Graph
     }
 
     def processElement(self, properties, parent, parent_grid):

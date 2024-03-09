@@ -2,7 +2,7 @@
   {
     "type": "box",
     "name": "boxGraph",
-    "title": "Graphiques",
+    "title": "",
     "row": 1,
     "col": 0,
     "width": 3,
@@ -33,9 +33,31 @@
         "name": "lcdAccX",
         "text": "Accéleration X",
         "data": "accX",
+        "row": 0,
+        "col": 2,
+        "width": 1,
+        "height": 1
+      },
+      {
+        "type": "graph",
+        "name": "graphAcc",
+        "data": {
+          "accX": {
+            "name": "Accélération X",
+            "color": [255,0,0]
+          },
+          "accY": {
+            "name": "Accélération Y",
+            "color": [0,255,0]
+          },
+          "accZ": {
+            "name": "Accélération Z",
+            "color": [0,0,255]
+          }
+        },
         "row": 1,
         "col": 0,
-        "width": 2,
+        "width": 3,
         "height": 1
       }
     ]

@@ -12,7 +12,6 @@ import ui
 import utils
 from constants import *
 from data import Data, DataCheckException
-from graph import GraphData
 from logger import Logger
 from session import Session
 from settings import Settings
