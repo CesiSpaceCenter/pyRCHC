@@ -12,7 +12,6 @@ class Session:
 
         self.timer_start = datetime.now()
         self.id = str(uuid.uuid4())
-        self.main_window.sessionLabel.setText(self.id)
         self.folder = os.path.join(SESSION_DIR, self.id)
         os.mkdir(self.folder)
         self.main_window.sessionButton.setText('Terminer la session')
@@ -21,7 +20,6 @@ class Session:
     def end(self) -> None:
         for i in self.main_window.graph_data:
             self.main_window.graph_data[i].reset()  # réinitialisation de tous les graphiques
-        self.main_window.sessionLabel.setText('Aucune session en cours')
         self.main_window.sessionButton.setText('Ouvrir une session')
         self.main_window.data.save(self)
         self.main_window.session = None

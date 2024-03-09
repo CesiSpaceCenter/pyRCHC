@@ -51,7 +51,6 @@ class MainWindow(QtWidgets.QMainWindow, ui.base_ui.Ui_MainWindow):
         self.data = Data(self.logger, self.serial)
 
         self.sessionButton.clicked.connect(self.session_button)
-        self.sessionLabel.mousePressEvent = lambda e: self.open_session_folder()
 
         self.update_serial_list()
         self.serialComboBox.activated.connect(self.handle_serial_combobox)
@@ -199,9 +198,9 @@ class MainWindow(QtWidgets.QMainWindow, ui.base_ui.Ui_MainWindow):
             self.status['connexion'] = 1
             self.status['integrite'] = 1
             return
-        except Exception as e:
+        """except Exception as e:
             self.logger.log(f'Erreur lors du traitement: {e}')
-            return
+            return"""
 
         self.last_successful_data = time.time()
 

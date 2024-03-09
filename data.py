@@ -128,7 +128,7 @@ class Data:
 
         # on applique les vérifications, les filtres
         decoded = self.process(decoded_raw)
-        self.buffer += decoded
+        self.buffer.append(decoded)
         return decoded
 
 
@@ -139,10 +139,17 @@ class Data:
                 f.write(self.raw_buffer)
                 self.raw_buffer = bytes()  # réinitialisation du buffer
 
-            # fichier data.csv dans le dossier de session
-            with open(os.path.join(session.folder, 'data.csv'), 'a') as f:
+            csv_path = os.path.join(session.folder, 'data.csv')
+            # si le dossier data.csv n'existe pas encore, on écrit la première ligne (noms des colonnes)
+            if not os.path.exists(csv_path):
+                with open(csv_path, 'w') as f:
+                    f.write(','.join(self.buffer[0].keys()))
+
+            # on écrit les données du buffer dans data.csv
+            with open(csv_path, 'a') as f:
                 for line in self.buffer:
-                    f.write(','.join(line))
-                self.buffer = bytes()  # réinitialisation du buffer
+                    f.write('\n')
+                    f.write(','.join( [str(val) for val in line.values()] ))
+                self.buffer = []  # réinitialisation du buffer
 
         self.logger.save()  # en même temps, on sauvegarde les logs

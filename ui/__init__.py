@@ -16,7 +16,7 @@ class Ui:
             self.config = json.loads(f.read())
 
         for element in self.config:
-            self.elements.append(self.processElement(element, self.MainWindow.centralwidget, self.MainWindow.gridLayout_2))
+            self.elements.append(self.processElement(element, self.MainWindow.centralwidget, self.MainWindow.gridCustomUi))
 
     element_classes = {
         'box': Box,
