@@ -1,10 +1,14 @@
+from __future__ import annotations
 from PyQt5 import QtWidgets
 from PyQt5.QtCore import Qt
+from typing import TYPE_CHECKING
+if TYPE_CHECKING:
+    from window import MainWindow
 
 
 class Lcd:
-    def __init__(self, MainWindow, parent, parent_grid, properties):
-        self.MainWindow = MainWindow
+    def __init__(self, window: MainWindow, parent: QtWidgets.QWidget, parent_grid: QtWidgets.QLayout, properties: dict):
+        self.window = window
         self.properties = properties
 
         self.element = QtWidgets.QHBoxLayout()

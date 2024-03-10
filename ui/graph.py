@@ -1,6 +1,10 @@
+from __future__ import annotations
 from PyQt5 import QtWidgets
 import pyqtgraph as pg
 import numpy as np
+from typing import TYPE_CHECKING
+if TYPE_CHECKING:
+    from window import MainWindow
 
 
 class GraphData:
@@ -34,8 +38,8 @@ class GraphData:
 class Graph:
     data_series = {}
 
-    def __init__(self, MainWindow, parent, parent_grid, properties):
-        self.MainWindow = MainWindow
+    def __init__(self, window: MainWindow, parent: QtWidgets.QWidget, parent_grid: QtWidgets.QLayout, properties: dict):
+        self.window = window
         self.properties = properties
 
         self.element = pg.PlotWidget(parent)
@@ -51,7 +55,7 @@ class Graph:
                              self.properties['height'],
                              self.properties['width'])
 
-    def set_data(self, data):
+    def set_data(self, data: dict):
         if 'data' in self.properties:
             for data_element, data_properties in self.properties['data'].items():
                 if data_element in data:

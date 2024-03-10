@@ -39,7 +39,6 @@ class MainWindow(QtWidgets.QMainWindow, ui.base_ui.Ui_MainWindow):
         self.custom_ui = ui.Ui(self)
 
         self.show()
-        self.init_graph()
 
         self.logger.setMainWindow(self)
 
@@ -142,27 +141,9 @@ class MainWindow(QtWidgets.QMainWindow, ui.base_ui.Ui_MainWindow):
         self.serialComboBox.addItem('Actualiser')
         self.serialComboBox.addItem('Déconnecter')
 
-    graph_data = {}
-
-    def init_graph(self) -> None:
-        """self.accGraph.addLegend()
-        self.gyroGraph.addLegend()
-        self.motorGraph.addLegend()
-
-        self.graph_data['temp'] = GraphData(self.tempGraph, 'Temperature', (255, 0, 0))
-        self.graph_data['accX'] = GraphData(self.accGraph, 'x', (255, 0, 0))
-        self.graph_data['accY'] = GraphData(self.accGraph, 'y', (0, 255, 0))
-        self.graph_data['accZ'] = GraphData(self.accGraph, 'z', (0, 0, 255))
-        self.graph_data['gyroX'] = GraphData(self.gyroGraph, 'x', (255, 0, 0))
-        self.graph_data['gyroY'] = GraphData(self.gyroGraph, 'y', (0, 255, 0))
-        self.graph_data['gyroZ'] = GraphData(self.gyroGraph, 'z', (0, 0, 255))
-
-        self.graph_data['leftSpeed'] = GraphData(self.motorGraph, 'left', (255, 0, 0))
-        self.graph_data['rightSpeed'] = GraphData(self.motorGraph, 'right', (0, 0, 255))"""
-
-    status = {}
     last_successful_data = 0
-
+    status = {}
+    
     def update(self) -> None:
         self.update_data()
         self.update_status()
