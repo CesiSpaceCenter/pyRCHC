@@ -1,5 +1,5 @@
 from __future__ import annotations
-from PyQt5 import QtWidgets
+from PyQt6 import QtWidgets
 from typing import TYPE_CHECKING
 if TYPE_CHECKING:
     from window import MainWindow

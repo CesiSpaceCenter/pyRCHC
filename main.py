@@ -1,7 +1,7 @@
 import sys
 
 import pyqtgraph as pg
-from PyQt5 import QtWidgets
+from PyQt6 import QtWidgets
 
 from constants import *
 from logger import Logger
@@ -25,4 +25,4 @@ if __name__ == '__main__':
     win = MainWindow()
     win.init(settings, logger)
     win.show()
-    sys.exit(app.exec_())
+    sys.exit(app.exec())

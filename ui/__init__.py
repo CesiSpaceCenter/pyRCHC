@@ -9,7 +9,7 @@ from typing import TYPE_CHECKING
 if TYPE_CHECKING:
     from window import MainWindow
 
-from PyQt5 import QtWidgets
+from PyQt6 import QtWidgets
 import json
 from constants import *
 

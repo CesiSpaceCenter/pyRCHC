@@ -6,7 +6,7 @@ from datetime import datetime
 import serial
 import serial.serialutil
 import serial.tools.list_ports
-from PyQt5 import QtWidgets
+from PyQt6 import QtWidgets
 
 import ui
 import utils

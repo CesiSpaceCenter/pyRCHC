@@ -1,6 +1,6 @@
 from __future__ import annotations
-from PyQt5 import QtWidgets
-from PyQt5.QtCore import Qt
+from PyQt6 import QtWidgets
+from PyQt6.QtCore import Qt
 from typing import TYPE_CHECKING
 if TYPE_CHECKING:
     from window import MainWindow
@@ -17,11 +17,11 @@ class Lcd:
         self.label = QtWidgets.QLabel(parent)
         self.label.setObjectName(f'{self.properties["name"]}_label')
         self.label.setText(self.properties['text'])
-        self.label.setAlignment(Qt.AlignRight)
+        self.label.setAlignment(Qt.AlignmentFlag.AlignRight)
 
         self.lcd = QtWidgets.QLCDNumber(parent)
         self.lcd.setObjectName(f'{self.properties["name"]}_lcd')
-        self.lcd.setSegmentStyle(QtWidgets.QLCDNumber.Flat)
+        self.lcd.setSegmentStyle(QtWidgets.QLCDNumber.SegmentStyle.Flat)
 
         self.element.addWidget(self.label)
         self.element.addWidget(self.lcd)

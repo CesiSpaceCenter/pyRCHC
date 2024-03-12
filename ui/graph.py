@@ -1,5 +1,5 @@
 from __future__ import annotations
-from PyQt5 import QtWidgets
+from PyQt6 import QtWidgets
 import pyqtgraph as pg
 import numpy as np
 from typing import TYPE_CHECKING
