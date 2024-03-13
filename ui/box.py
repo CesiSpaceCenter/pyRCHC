@@ -16,11 +16,6 @@ class Box:
         self.grid = QtWidgets.QGridLayout(self.element)
         self.grid.setObjectName(f'{properties["name"]}_grid')
 
-        parent_grid.addWidget(self.element,
-                             properties['row'],
-                             properties['col'],
-                             properties['height'],
-                             properties['width'])
 
     def set_data(self, data):
         pass

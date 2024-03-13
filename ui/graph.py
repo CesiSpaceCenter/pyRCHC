@@ -50,12 +50,6 @@ class Graph:
         for data_element, data_properties in self.properties['data'].items():
             self.data_series[data_element] = GraphData(self.element, data_properties['name'], data_properties['color'])
 
-        parent_grid.addWidget(self.element,
-                             self.properties['row'],
-                             self.properties['col'],
-                             self.properties['height'],
-                             self.properties['width'])
-
     def set_data(self, data: dict):
         if 'data' in self.properties:
             for data_element, data_properties in self.properties['data'].items():

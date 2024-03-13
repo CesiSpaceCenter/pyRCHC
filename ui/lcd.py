@@ -26,12 +26,6 @@ class Lcd:
         self.element.addWidget(self.label)
         self.element.addWidget(self.lcd)
 
-        parent_grid.addLayout(self.element,
-                             self.properties['row'],
-                             self.properties['col'],
-                             self.properties['height'],
-                             self.properties['width'])
-
     def set_data(self, data):
         if 'data' in self.properties and self.properties['data'] in data:
             self.lcd.setProperty('value', data[self.properties['data']])

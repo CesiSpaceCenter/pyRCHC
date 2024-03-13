@@ -34,6 +34,18 @@ class Ui:
 
     def process_element(self, properties: dict, parent: QtWidgets.QWidget, parent_grid: QtWidgets.QLayout):
         element = self.element_classes[properties['type']](self.window, parent, parent_grid, properties)
+        if isinstance(element.element, QtWidgets.QLayout):
+            parent_grid.addLayout(element.element,
+                             properties['row'],
+                             properties['col'],
+                             properties['height'],
+                             properties['width'])
+        elif isinstance(element.element, QtWidgets.QWidget):
+            parent_grid.addWidget(element.element,
+                              properties['row'],
+                              properties['col'],
+                              properties['height'],
+                              properties['width'])
 
         if 'content' in properties:
             for sub_element in properties['content']:
