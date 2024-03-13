@@ -33,7 +33,6 @@ class Ui:
     }
 
     def process_element(self, properties: dict, parent: QtWidgets.QWidget, parent_grid: QtWidgets.QLayout):
-        print(isinstance(parent, QtWidgets.QWidget), isinstance(parent_grid, QtWidgets.QLayout))
         element = self.element_classes[properties['type']](self.window, parent, parent_grid, properties)
 
         if 'content' in properties:
@@ -41,3 +40,13 @@ class Ui:
                 self.elements.append(self.process_element(sub_element, element.element, element.grid))
 
         return element
+
+    def reset(self):
+        for element in self.elements:
+            if hasattr(element, 'reset'):
+                element.reset()
+
+    def update_data(self, data: dict):
+        for element in self.elements:
+            if hasattr(element, 'set_data'):
+                element.set_data(data)

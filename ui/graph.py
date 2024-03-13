@@ -1,7 +1,9 @@
 from __future__ import annotations
 from PyQt6 import QtWidgets
+from PyQt6.QtCore import QTime, QElapsedTimer
 import pyqtgraph as pg
 import numpy as np
+import time
 from typing import TYPE_CHECKING
 if TYPE_CHECKING:
     from window import MainWindow
@@ -11,8 +13,9 @@ class GraphData:
     x = []
     y = []
 
-    def __init__(self, graph: pg.PlotWidget, name: str, color: tuple[int, int, int], n_points: int = 100) -> None:
-        self.n_points = n_points
+    def __init__(self, graph: pg.PlotWidget, name: str, color: tuple[int, int, int]) -> None:
+        self.timer = QElapsedTimer()
+
         self.reset()
 
         self.data_line = graph.plot(
@@ -22,18 +25,16 @@ class GraphData:
             name=name
         )
 
-        graph.getAxis('bottom').labelUnits = 's'
-
     def reset(self) -> None:
-        self.x = list(np.linspace(int(-self.n_points * 0.05), 0, self.n_points))
-        self.y = [0.0] * self.n_points
+        self.timer.restart()
+        self.x = []
+        self.y = []
 
     def append(self, data: float | int) -> None:
-        self.y.pop(0)  # on enlève le 1er élément
+        self.x.append(self.timer.elapsed()/1000)
         self.y.append(data)  # on ajoute la nouvelle valeur
 
         self.data_line.setData(self.x, self.y)  # mise à jour des données
-
 
 class Graph:
     data_series = {}
@@ -60,3 +61,7 @@ class Graph:
             for data_element, data_properties in self.properties['data'].items():
                 if data_element in data:
                     self.data_series[data_element].append(data[data_element])
+
+    def reset(self):
+        for series in self.data_series.values():
+            series.reset()

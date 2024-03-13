@@ -18,8 +18,7 @@ class Session:
         self.logger.log('Nouvelle session:', self.id)
 
     def end(self) -> None:
-        for i in self.main_window.graph_data:
-            self.main_window.graph_data[i].reset()  # réinitialisation de tous les graphiques
+        self.main_window.custom_ui.reset()
         self.main_window.sessionButton.setText('Ouvrir une session')
         self.main_window.data.save(self)
         self.main_window.session = None

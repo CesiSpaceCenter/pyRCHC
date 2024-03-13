@@ -17,7 +17,7 @@ class Lcd:
         self.label = QtWidgets.QLabel(parent)
         self.label.setObjectName(f'{self.properties["name"]}_label')
         self.label.setText(self.properties['text'])
-        self.label.setAlignment(Qt.AlignmentFlag.AlignRight)
+        self.label.setAlignment(Qt.AlignmentFlag.AlignRight | Qt.AlignmentFlag.AlignVCenter)
 
         self.lcd = QtWidgets.QLCDNumber(parent)
         self.lcd.setObjectName(f'{self.properties["name"]}_lcd')
