@@ -1,4 +1,5 @@
 import sys
+import signal
 
 import pyqtgraph as pg
 from PyQt6 import QtWidgets
@@ -7,6 +8,8 @@ from constants import *
 from logger import Logger
 from settings import Settings
 from window import MainWindow
+
+signal.signal(signal.SIGINT, signal.SIG_DFL)
 
 pg.setConfigOption('background', (0, 0, 0, 0))  # fond transparent
 pg.setConfigOption('antialias', True)
