@@ -17,8 +17,9 @@ class Session:
         self.main_window.sessionButton.setText('Terminer la session')
         self.logger.log('Nouvelle session:', self.id)
 
-    def end(self) -> None:
         self.main_window.custom_ui.reset()
+
+    def end(self) -> None:
         self.main_window.sessionButton.setText('Ouvrir une session')
         self.main_window.data.save(self)
         self.main_window.session = None

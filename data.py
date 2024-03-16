@@ -9,13 +9,7 @@ from session import Session
 from decoders import decoders
 
 
-class DataCheckException(Exception):
-    pass
-
 class DecodeException(Exception):
-    pass
-
-class ConnectionTimeoutException(Exception):
     pass
 
 class IncorrectConfigurationException(Exception):
@@ -32,22 +26,23 @@ class Data:
         with open(os.path.join(APP_DIR, 'data_config.json'), 'r') as f:
             self.config = json.loads(f.read())
 
-    def process(self, data: list) -> dict:
+    def process(self, data: list) -> (dict, list):
         config_item_index = 0
         out_data = {}
-
+        errors = []
+        
         for item_value in data:
             # on récupère la configuration de l'élément
             while True:
                 try:
-                    item_name = list(self.config['items'])[config_item_index]
+                    item_name = list(self.config['items'].keys())[config_item_index]
                     config_item = self.config['items'][item_name]
                     config_item_index += 1
-                except Exception as e:
-                    raise IncorrectConfigurationException(e)
+                except Exception as e:  # on a pas trouvé l'élément de config
+                    raise IncorrectConfigurationException(f'Incorrect configuration: {e}')
 
                 # si l'élément de config actuel n'a pas de condition, ou alors si cette condition est validée
-                # alors on arrête la boucle
+                # alors on arrête le while et on passe à la suite
                 if 'if' not in config_item or out_data[config_item['if']['key']] == config_item['if']['value']:
                     break
 
@@ -66,59 +61,55 @@ class Data:
             try:
                 item_value = item_type(item_value)
             except ValueError:
-                raise DecodeException(f'Cannot convert {item_value} to {config_item["type"]}')
+                errors.append({
+                    'message': f'Cannot convert {item_value} to {config_item["type"]}',
+                    'status_item': 'integrity',
+                    'severity': 2
+                })
 
             # on effectue toutes les vérifications (minimum, maximum, etc)
             for check_item in config_item['checks']:
-                # on initialise l'erreur
-                e = DataCheckException()
-                e.severity = check_item['severity']
-                e.status_item = check_item['status_item']
-
-                # dans le cas ou il y a bien une erreur, on définit le message puis on raise
+                error_message = None
+                # dans le cas ou il y a bien une erreur, on définit le message puis on ajoute à la liste
                 if check_item['check'] == 'min_length' and len(item_value) < check_item['value']:
-                    e.args = (f'{item_name} is not long enough ({len(item_value)} < {check_item["value"]})',)
-                    raise e
+                    error_mesage = f'{item_name} is not long enough ({len(item_value)} < {check_item["value"]})'
 
                 elif check_item['check'] == 'max_length' and len(item_value) > check_item['value']:
-                    e.args = (f'{item_name} is too long ({len(item_value)} > {check_item["value"]})',)
-                    raise e
+                    error_mesage = f'{item_name} is too long ({len(item_value)} > {check_item["value"]})'
 
                 elif check_item['check'] == 'min' and item_value < check_item['value']:
-                    e.args = (f'{item_name} is below min ({item_value} < {check_item["value"]})',)
-                    raise e
+                    error_mesage = f'{item_name} is below min ({item_value} < {check_item["value"]})'
 
                 elif check_item['check'] == 'max' and item_value > check_item['value']:
-                    e.args = (f'{item_name} is above max ({item_value} > {check_item["value"]})',)
-                    raise e
+                    error_mesage = f'{item_name} is above max ({item_value} > {check_item["value"]})'
 
                 elif check_item['check'] == 'values_enum' and item_value not in check_item["value"]:
-                    e.args = (f'{item_name}\'s value is not in defined enum {check_item["value"]}',)
-                    raise e
+                    error_mesage = f'{item_name}\'s value is not in defined enum {check_item["value"]}'
 
+                if error_message is not None:
+                    errors.append({
+                        'message': error_message,
+                        'status_item': 'integrity',
+                        'severity': '2'
+                    })
             out_data[item_name] = item_value
-        return out_data
+        return out_data, errors
 
-    def fetch(self) -> dict:
-        #raw_data = self.serial.readline()
+    def fetch(self) -> (dict, list):
+        raw_data = self.serial.readline()
 
-        if random.randint(0,6) == 1:
-            raw_data = '1,'  # pt
-            raw_data += 'coucou\n'  # alt
-        else:
-            raw_data = '0,'  # pt
-            raw_data += str(random.randint(0, 50) / 10) + ','  # accX
-            raw_data += str(random.randint(0, 50) / 10) + ','  # accY
-            raw_data += str(random.randint(0, 50) / 10) + ','  # accZ
-            raw_data += str(random.randint(0, 50) / 10) + ','  # vitX
-            raw_data += str(random.randint(0, 50) / 10) + ','  # vitY
-            raw_data += str(random.randint(0, 50) / 10) + ','  # vitZ
-            raw_data += str(random.randint(0, 1000) / 10) + '\n'  # alt
+        """raw_data = '0,'  # pt
+        raw_data += str(random.randint(0, 50) / 10) + ','  # accX
+        raw_data += str(random.randint(0, 50) / 10) + ','  # accY
+        raw_data += str(random.randint(0, 50) / 10) + ','  # accZ
+        raw_data += str(random.randint(0, 50) / 10) + ','  # gyrX
+        raw_data += str(random.randint(0, 50) / 10) + ','  # gyrY
+        raw_data += str(random.randint(0, 50) / 10) + ','  # gyrZ
+        raw_data += str(random.randint(0, 50) / 10) + ','  # pres
+        raw_data += str(random.randint(0, 1000) / 10) + '\n'  # temp
+        raw_data = raw_data.encode()"""
 
-        raw_data = raw_data.encode()
         self.raw_buffer += raw_data
-        raw_data = raw_data.replace(b'\n', b'')
-
 
         # on décode les données brutes
         try:
@@ -127,10 +118,9 @@ class Data:
             raise DecodeException('Failed to decode')
 
         # on applique les vérifications, les filtres
-        decoded = self.process(decoded_raw)
+        decoded, errors = self.process(decoded_raw)
         self.buffer.append(decoded)
-        return decoded
-
+        return decoded, errors
 
     def save(self, session: Session) -> None:  # on sauvegarde à la fois les données et le log
         if session is not None:  # ne faire ça que si la session est ouverte

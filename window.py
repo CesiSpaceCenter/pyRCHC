@@ -11,7 +11,7 @@ from PyQt6 import QtWidgets
 import ui
 import utils
 from constants import *
-from data import Data, DataCheckException
+from data import Data
 from logger import Logger
 from session import Session
 from settings import Settings
@@ -149,7 +149,7 @@ class MainWindow(QtWidgets.QMainWindow, ui.base_ui.Ui_MainWindow):
         self.update_status()
 
     def update_data(self) -> None:
-        status = {
+        self.status = {
             'connexion': 0,
             'integrite': 0,
             'recepteur': 0,
@@ -166,21 +166,19 @@ class MainWindow(QtWidgets.QMainWindow, ui.base_ui.Ui_MainWindow):
             return
 
         try:
-            data = self.data.fetch()
+            data, errors = self.data.fetch()
             self.status['recepteur'] = 4
         except serial.serialutil.SerialException:
             self.logger.log('Erreur: communication avec le récepteur impossible')
             self.status['connexion'] = 1
             self.status['recepteur'] = 1
             return
-        except DataCheckException as e:
-            self.logger.log(f'Erreur: {e}')
-            self.status['connexion'] = 1
-            self.status['integrite'] = 1
-            return
-        """except Exception as e:
-            self.logger.log(f'Erreur lors du traitement: {e}')
-            return"""
+
+        if errors:
+            print(errors)
+            for error in errors:
+                self.logger.log(f'Erreur: {error["message"]}')
+                self.status[error['status_item']] = error['severity']
 
         self.last_successful_data = time.time()
 
