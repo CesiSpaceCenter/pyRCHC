@@ -19,14 +19,14 @@ class Ui_MainWindow(object):
 "}\n"
 "\n"
 "QMainWindow, QWidget {\n"
-"    background-color: #222;\n"
-"    color: #fff;\n"
+"    background-color: #eee;\n"
+"    color: #000;\n"
 "}\n"
 "\n"
 "QPushButton {\n"
 "    padding: 5px 8px;\n"
-"    background-color: #363636;\n"
-"    color: #fff;\n"
+"    background-color: #ccc;\n"
+"    color: #000;\n"
 "    border: 2px solid #363636;\n"
 "}\n"
 "\n"
@@ -39,11 +39,11 @@ class Ui_MainWindow(object):
 "}\n"
 "\n"
 "QLabel[objectName^=\"statusLabel_\"] {\n"
-"    background-color: #363636;\n"
+"    background-color: #eee;\n"
 "}\n"
 "\n"
 "PlotWidget {\n"
-"    border: 1px solid #363636;\n"
+"    border: 1px solid #eee;\n"
 "}\n"
 "\n"
 "QProgressBar {\n"
@@ -59,7 +59,7 @@ class Ui_MainWindow(object):
         self.gridLayout_2 = QtWidgets.QGridLayout(self.centralwidget)
         self.gridLayout_2.setObjectName("gridLayout_2")
         self.statusBox = QtWidgets.QGroupBox(parent=self.centralwidget)
-        self.statusBox.setMinimumSize(QtCore.QSize(650, 0))
+        self.statusBox.setMinimumSize(QtCore.QSize(300, 0))
         self.statusBox.setMaximumSize(QtCore.QSize(650, 180))
         self.statusBox.setObjectName("statusBox")
         self.horizontalLayout = QtWidgets.QHBoxLayout(self.statusBox)
@@ -86,50 +86,6 @@ class Ui_MainWindow(object):
         self.statusLabel_timeout.setObjectName("statusLabel_timeout")
         self.verticalLayout_6.addWidget(self.statusLabel_timeout)
         self.horizontalLayout.addLayout(self.verticalLayout_6)
-        self.verticalLayout_5 = QtWidgets.QVBoxLayout()
-        self.verticalLayout_5.setObjectName("verticalLayout_5")
-        self.statusLabel_motors = QtWidgets.QLabel(parent=self.statusBox)
-        font = QtGui.QFont()
-        font.setBold(True)
-        self.statusLabel_motors.setFont(font)
-        self.statusLabel_motors.setAlignment(QtCore.Qt.AlignmentFlag.AlignCenter)
-        self.statusLabel_motors.setObjectName("statusLabel_motors")
-        self.verticalLayout_5.addWidget(self.statusLabel_motors)
-        self.statusLabel_motorL = QtWidgets.QLabel(parent=self.statusBox)
-        self.statusLabel_motorL.setAlignment(QtCore.Qt.AlignmentFlag.AlignCenter)
-        self.statusLabel_motorL.setObjectName("statusLabel_motorL")
-        self.verticalLayout_5.addWidget(self.statusLabel_motorL)
-        self.statusLabel_motorR = QtWidgets.QLabel(parent=self.statusBox)
-        self.statusLabel_motorR.setAlignment(QtCore.Qt.AlignmentFlag.AlignCenter)
-        self.statusLabel_motorR.setObjectName("statusLabel_motorR")
-        self.verticalLayout_5.addWidget(self.statusLabel_motorR)
-        self.label_4 = QtWidgets.QLabel(parent=self.statusBox)
-        self.label_4.setText("")
-        self.label_4.setObjectName("label_4")
-        self.verticalLayout_5.addWidget(self.label_4)
-        self.horizontalLayout.addLayout(self.verticalLayout_5)
-        self.verticalLayout_4 = QtWidgets.QVBoxLayout()
-        self.verticalLayout_4.setObjectName("verticalLayout_4")
-        self.statusLabel_sensors = QtWidgets.QLabel(parent=self.statusBox)
-        font = QtGui.QFont()
-        font.setBold(True)
-        self.statusLabel_sensors.setFont(font)
-        self.statusLabel_sensors.setAlignment(QtCore.Qt.AlignmentFlag.AlignCenter)
-        self.statusLabel_sensors.setObjectName("statusLabel_sensors")
-        self.verticalLayout_4.addWidget(self.statusLabel_sensors)
-        self.statusLabel_ir = QtWidgets.QLabel(parent=self.statusBox)
-        self.statusLabel_ir.setAlignment(QtCore.Qt.AlignmentFlag.AlignCenter)
-        self.statusLabel_ir.setObjectName("statusLabel_ir")
-        self.verticalLayout_4.addWidget(self.statusLabel_ir)
-        self.statusLabel_acc = QtWidgets.QLabel(parent=self.statusBox)
-        self.statusLabel_acc.setAlignment(QtCore.Qt.AlignmentFlag.AlignCenter)
-        self.statusLabel_acc.setObjectName("statusLabel_acc")
-        self.verticalLayout_4.addWidget(self.statusLabel_acc)
-        self.label_6 = QtWidgets.QLabel(parent=self.statusBox)
-        self.label_6.setText("")
-        self.label_6.setObjectName("label_6")
-        self.verticalLayout_4.addWidget(self.label_6)
-        self.horizontalLayout.addLayout(self.verticalLayout_4)
         self.gridLayout_2.addWidget(self.statusBox, 0, 2, 1, 2)
         self.globalStatusBox = QtWidgets.QGroupBox(parent=self.centralwidget)
         self.globalStatusBox.setMinimumSize(QtCore.QSize(230, 0))
@@ -177,34 +133,26 @@ class Ui_MainWindow(object):
         self.groupBox_4.setObjectName("groupBox_4")
         self.gridLayout = QtWidgets.QGridLayout(self.groupBox_4)
         self.gridLayout.setObjectName("gridLayout")
-        self.settingsButton = QtWidgets.QPushButton(parent=self.groupBox_4)
-        self.settingsButton.setMinimumSize(QtCore.QSize(0, 0))
-        self.settingsButton.setMaximumSize(QtCore.QSize(16777215, 50))
-        self.settingsButton.setStyleSheet("")
-        self.settingsButton.setCheckable(False)
-        self.settingsButton.setFlat(False)
-        self.settingsButton.setObjectName("settingsButton")
-        self.gridLayout.addWidget(self.settingsButton, 5, 0, 1, 1)
+        self.serialComboBox = QtWidgets.QComboBox(parent=self.groupBox_4)
+        self.serialComboBox.setMaximumSize(QtCore.QSize(16777215, 30))
+        self.serialComboBox.setCurrentText("")
+        self.serialComboBox.setObjectName("serialComboBox")
+        self.gridLayout.addWidget(self.serialComboBox, 4, 0, 1, 1)
+        self.label_2 = QtWidgets.QLabel(parent=self.groupBox_4)
+        self.label_2.setMaximumSize(QtCore.QSize(16777215, 30))
+        self.label_2.setAlignment(QtCore.Qt.AlignmentFlag.AlignCenter)
+        self.label_2.setObjectName("label_2")
+        self.gridLayout.addWidget(self.label_2, 2, 0, 1, 1)
         self.label = QtWidgets.QLabel(parent=self.groupBox_4)
         font = QtGui.QFont()
         font.setFamily("DejaVu Sans")
-        font.setPointSize(37)
+        font.setPointSize(32)
         font.setBold(True)
         self.label.setFont(font)
         self.label.setTextFormat(QtCore.Qt.TextFormat.AutoText)
         self.label.setAlignment(QtCore.Qt.AlignmentFlag.AlignCenter)
         self.label.setObjectName("label")
         self.gridLayout.addWidget(self.label, 0, 0, 1, 1)
-        self.label_2 = QtWidgets.QLabel(parent=self.groupBox_4)
-        self.label_2.setMaximumSize(QtCore.QSize(16777215, 30))
-        self.label_2.setAlignment(QtCore.Qt.AlignmentFlag.AlignCenter)
-        self.label_2.setObjectName("label_2")
-        self.gridLayout.addWidget(self.label_2, 2, 0, 1, 1)
-        self.serialComboBox = QtWidgets.QComboBox(parent=self.groupBox_4)
-        self.serialComboBox.setMaximumSize(QtCore.QSize(16777215, 30))
-        self.serialComboBox.setCurrentText("")
-        self.serialComboBox.setObjectName("serialComboBox")
-        self.gridLayout.addWidget(self.serialComboBox, 4, 0, 1, 1)
         self.gridLayout_2.addWidget(self.groupBox_4, 0, 0, 1, 1)
         self.groupBox_2 = QtWidgets.QGroupBox(parent=self.centralwidget)
         self.groupBox_2.setMaximumSize(QtCore.QSize(16777215, 180))
@@ -236,18 +184,11 @@ class Ui_MainWindow(object):
         self.statusLabel_recepteur.setText(_translate("MainWindow", "Récepteur"))
         self.statusLabel_integrite.setText(_translate("MainWindow", "Intégrité"))
         self.statusLabel_timeout.setText(_translate("MainWindow", "Timeout"))
-        self.statusLabel_motors.setText(_translate("MainWindow", "Moteurs"))
-        self.statusLabel_motorL.setText(_translate("MainWindow", "Moteurs gauche"))
-        self.statusLabel_motorR.setText(_translate("MainWindow", "Moteurs droite"))
-        self.statusLabel_sensors.setText(_translate("MainWindow", "Capteurs"))
-        self.statusLabel_ir.setText(_translate("MainWindow", "Infrarouge"))
-        self.statusLabel_acc.setText(_translate("MainWindow", "Accéléromètre"))
         self.globalStatusBox.setTitle(_translate("MainWindow", "Status global"))
         self.statusLabel_global.setText(_translate("MainWindow", "INIT"))
         self.sessionButton.setText(_translate("MainWindow", "Ouvrir une session"))
         self.clockLabel.setText(_translate("MainWindow", "time"))
         self.timerLabel.setText(_translate("MainWindow", "timer"))
-        self.settingsButton.setText(_translate("MainWindow", "Paramètres"))
-        self.label.setText(_translate("MainWindow", "RCH-C"))
-        self.label_2.setText(_translate("MainWindow", "vPY-0.1B"))
+        self.label_2.setText(_translate("MainWindow", "V1.0-B"))
+        self.label.setText(_translate("MainWindow", "CSC-GC"))
         self.groupBox_2.setTitle(_translate("MainWindow", "Logs"))

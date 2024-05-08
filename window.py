@@ -187,7 +187,7 @@ class MainWindow(QtWidgets.QMainWindow, ui.base_ui.Ui_MainWindow):
     def update_status(self) -> None:
         for item in self.status:
             if self.status[item] == 0:
-                self.__dict__[f'statusLabel_{item}'].setStyleSheet('background-color: #363636')  # gris
+                self.__dict__[f'statusLabel_{item}'].setStyleSheet('background-color: #bbb')  # gris
             elif self.status[item] == 1:
                 self.__dict__[f'statusLabel_{item}'].setStyleSheet('background-color: red')  # rouge
             elif self.status[item] == 2:
