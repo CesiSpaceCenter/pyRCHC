@@ -28,6 +28,7 @@ class Data:
 
     def process(self, data: list) -> (dict, list):
         config_item_index = 0
+        expected_data_count = 0
         out_data = {}
         errors = []
         
@@ -44,6 +45,7 @@ class Data:
                 # si l'élément de config actuel n'a pas de condition, ou alors si cette condition est validée
                 # alors on arrête le while et on passe à la suite
                 if 'if' not in config_item or out_data[config_item['if']['key']] == config_item['if']['value']:
+                    expected_data_count += 1
                     break
 
             # on convertit l'élément au type correspondant
@@ -63,40 +65,48 @@ class Data:
             except ValueError:
                 errors.append({
                     'message': f'Cannot convert {item_value} to {config_item["type"]}',
-                    'status_item': 'integrity',
+                    'status_item': 'integrite',
                     'severity': 2
                 })
 
             # on effectue toutes les vérifications (minimum, maximum, etc)
-            for check_item in config_item['checks']:
-                error_message = None
-                # dans le cas ou il y a bien une erreur, on définit le message puis on ajoute à la liste
-                if check_item['check'] == 'min_length' and len(item_value) < check_item['value']:
-                    error_mesage = f'{item_name} is not long enough ({len(item_value)} < {check_item["value"]})'
+            if 'checks' in config_item:
+                for check_item in config_item['checks']:
+                    error_message = None
+                    # dans le cas ou il y a bien une erreur, on définit le message puis on ajoute à la liste
+                    if check_item['check'] == 'min_length' and len(item_value) < check_item['value']:
+                        error_message = f'{item_name} is not long enough ({len(item_value)} < {check_item["value"]})'
 
-                elif check_item['check'] == 'max_length' and len(item_value) > check_item['value']:
-                    error_mesage = f'{item_name} is too long ({len(item_value)} > {check_item["value"]})'
+                    elif check_item['check'] == 'max_length' and len(item_value) > check_item['value']:
+                        error_message = f'{item_name} is too long ({len(item_value)} > {check_item["value"]})'
 
-                elif check_item['check'] == 'min' and item_value < check_item['value']:
-                    error_mesage = f'{item_name} is below min ({item_value} < {check_item["value"]})'
+                    elif check_item['check'] == 'min' and item_value < check_item['value']:
+                        error_message = f'{item_name} is below min ({item_value} < {check_item["value"]})'
 
-                elif check_item['check'] == 'max' and item_value > check_item['value']:
-                    error_mesage = f'{item_name} is above max ({item_value} > {check_item["value"]})'
+                    elif check_item['check'] == 'max' and item_value > check_item['value']:
+                        error_message = f'{item_name} is above max ({item_value} > {check_item["value"]})'
 
-                elif check_item['check'] == 'values_enum' and item_value not in check_item["value"]:
-                    error_mesage = f'{item_name}\'s value is not in defined enum {check_item["value"]}'
+                    elif check_item['check'] == 'values_enum' and item_value not in check_item["value"]:
+                        error_message = f'{item_name}\'s value is not in defined enum {check_item["value"]}'
 
-                if error_message is not None:
-                    errors.append({
-                        'message': error_message,
-                        'status_item': 'integrity',
-                        'severity': '2'
-                    })
+                    if error_message is not None:
+                        errors.append({
+                            'message': error_message,
+                            'status_item': 'integrite',
+                            'severity': 2
+                        })
             out_data[item_name] = item_value
+        if len(out_data) != expected_data_count:
+            errors.append({
+                'message': f'Incorrect data count. Expected {expected_data_count} got {len(out_data)}',
+                'status_item': 'integrite',
+                'severity': 2
+            })
         return out_data, errors
 
     def fetch(self) -> (dict, list):
         raw_data = self.serial.readline()
+        self.serial.flush()
 
         """raw_data = '0,'  # pt
         raw_data += str(random.randint(0, 50) / 10) + ','  # accX
