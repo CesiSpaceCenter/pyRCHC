@@ -4,3 +4,6 @@ arduino_test
 logs
 sessions
 settings.json
+.venv
+venv
+.idea
