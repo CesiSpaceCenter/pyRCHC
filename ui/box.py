@@ -12,6 +12,7 @@ class Box:
         self.element = QtWidgets.QGroupBox(parent)
         self.element.setObjectName(properties['name'])
         self.element.setTitle(properties['title'])
+        self.element.setMinimumHeight(1)
 
         self.grid = QtWidgets.QGridLayout(self.element)
         self.grid.setObjectName(f'{properties["name"]}_grid')

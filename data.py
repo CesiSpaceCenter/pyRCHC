@@ -105,10 +105,10 @@ class Data:
         return out_data, errors
 
     def fetch(self) -> (dict, list):
-        raw_data = self.serial.readline()
-        self.serial.flush()
+        #raw_data = self.serial.readline()
+        #self.serial.flush()
 
-        """raw_data = '0,'  # pt
+        raw_data = ''
         raw_data += str(random.randint(0, 50) / 10) + ','  # accX
         raw_data += str(random.randint(0, 50) / 10) + ','  # accY
         raw_data += str(random.randint(0, 50) / 10) + ','  # accZ
@@ -116,8 +116,9 @@ class Data:
         raw_data += str(random.randint(0, 50) / 10) + ','  # gyrY
         raw_data += str(random.randint(0, 50) / 10) + ','  # gyrZ
         raw_data += str(random.randint(0, 50) / 10) + ','  # pres
-        raw_data += str(random.randint(0, 1000) / 10) + '\n'  # temp
-        raw_data = raw_data.encode()"""
+        raw_data += str(random.randint(0, 1000) / 10) + ','  # alt
+        raw_data += str(random.randint(0, 50) / 10) + '\n'  # temp
+        raw_data = raw_data.encode()
 
         self.raw_buffer += raw_data
 

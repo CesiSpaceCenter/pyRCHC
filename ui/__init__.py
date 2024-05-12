@@ -4,6 +4,7 @@ from .base_ui import Ui_MainWindow
 from .box import Box
 from .lcd import Lcd
 from .graph import Graph
+from .data_box import DataBox
 
 from typing import TYPE_CHECKING
 if TYPE_CHECKING:
@@ -26,26 +27,33 @@ class Ui:
         for element in self.config:
             self.elements.append(self.process_element(element, self.window.centralwidget, self.window.gridCustomUi))
 
+        self.window.gridCustomUi.setRowStretch(0, 0)
+
     element_classes = {
         'box': Box,
         'lcd': Lcd,
-        'graph': Graph
+        'graph': Graph,
+        'data box': DataBox,
     }
 
-    def process_element(self, properties: dict, parent: QtWidgets.QWidget, parent_grid: QtWidgets.QLayout):
+    def process_element(self, properties: dict, parent: QtWidgets.QWidget, parent_grid: QtWidgets.QGridLayout):
         element = self.element_classes[properties['type']](self.window, parent, parent_grid, properties)
         if isinstance(element.element, QtWidgets.QLayout):
             parent_grid.addLayout(element.element,
-                             properties['row'],
-                             properties['col'],
-                             properties['height'],
-                             properties['width'])
+                            properties['row'],
+                            properties['col'],
+                            properties['height'],
+                            properties['width'])
         elif isinstance(element.element, QtWidgets.QWidget):
             parent_grid.addWidget(element.element,
-                              properties['row'],
-                              properties['col'],
-                              properties['height'],
-                              properties['width'])
+                            properties['row'],
+                            properties['col'],
+                            properties['height'],
+                            properties['width'])
+
+        parent_grid.setRowStretch(properties['row'], properties['height'])
+        parent_grid.setColumnStretch(properties['col'], properties['width'])
+
 
         if 'content' in properties:
             for sub_element in properties['content']:

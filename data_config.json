@@ -3,188 +3,34 @@
   "separator": ",",
   "newline": "\n",
   "items": {
-    "packet_type": {
-      "type": "uint8",
-      "checks": [
-        {
-          "check": "values_enum",
-          "value": [0, 1],
-          "severity": 2,
-          "status_item": "integrity"
-        }
-      ]
-    },
-
-
     "accX": {
-      "type": "float",
-      "if": {
-        "key": "packet_type",
-        "value": 0
-      },
-      "checks": [
-        {
-          "check": "min",
-          "value": -5,
-          "severity": 2,
-          "status_item": "integrity"
-        },
-        {
-          "check": "max",
-          "value": 5,
-          "severity": 2,
-          "status_item": "integrity"
-        }
-      ]
+      "type": "float"
     },
-
     "accY": {
-      "type": "float",
-      "if": {
-        "key": "packet_type",
-        "value": 0
-      },
-      "checks": [
-        {
-          "check": "min",
-          "value": -5,
-          "severity": 2,
-          "status_item": "integrity"
-        },
-        {
-          "check": "max",
-          "value": 5,
-          "severity": 2,
-          "status_item": "integrity"
-        }
-      ]
+      "type": "float"
     },
-
     "accZ": {
-      "type": "float",
-      "if": {
-        "key": "packet_type",
-        "value": 0
-      },
-      "checks": [
-        {
-          "check": "min",
-          "value": -5,
-          "severity": 2,
-          "status_item": "integrity"
-        },
-        {
-          "check": "max",
-          "value": 5,
-          "severity": 2,
-          "status_item": "integrity"
-        }
-      ]
+      "type": "float"
     },
 
-    "vitX": {
-      "type": "float",
-      "if": {
-        "key": "packet_type",
-        "value": 0
-      },
-      "checks": [
-        {
-          "check": "min",
-          "value": -5,
-          "severity": 2,
-          "status_item": "integrity"
-        },
-        {
-          "check": "max",
-          "value": 5,
-          "severity": 2,
-          "status_item": "integrity"
-        }
-      ]
+    "gyrX": {
+      "type": "float"
+    },
+    "gyrY": {
+      "type": "float"
+    },
+    "gyrZ": {
+      "type": "float"
     },
 
-    "vitY": {
-      "type": "float",
-      "if": {
-        "key": "packet_type",
-        "value": 0
-      },
-      "checks": [
-        {
-          "check": "min",
-          "value": -5,
-          "severity": 2,
-          "status_item": "integrity"
-        },
-        {
-          "check": "max",
-          "value": 5,
-          "severity": 2,
-          "status_item": "integrity"
-        }
-      ]
+    "pression": {
+      "type": "float"
     },
-
-    "vitZ": {
-      "type": "float",
-      "if": {
-        "key": "packet_type",
-        "value": 0
-      },
-      "checks": [
-        {
-          "check": "min",
-          "value": -5,
-          "severity": 2,
-          "status_item": "integrity"
-        },
-        {
-          "check": "max",
-          "value": 5,
-          "severity": 2,
-          "status_item": "integrity"
-        }
-      ]
-    },
-
     "altitude": {
-      "type": "float",
-      "if": {
-        "key": "packet_type",
-        "value": 0
-      },
-      "checks": [
-        {
-          "check": "min",
-          "value": 0,
-          "severity": 2,
-          "status_item": "integrity"
-        },
-        {
-          "check": "max",
-          "value": 130,
-          "severity": 2,
-          "status_item": "integrity"
-        }
-      ]
+      "type": "float"
     },
-
-    "message": {
-      "if": {
-        "key": "packet_type",
-        "value": 1
-      },
-      "type": "string",
-
-      "checks": [
-        {
-          "check": "max_length",
-          "value": 30,
-          "severity": 2,
-          "status_item": "integrity"
-        }
-      ]
+    "temperature": {
+      "type": "float"
     }
   }
 }

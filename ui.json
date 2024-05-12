@@ -1,18 +1,18 @@
 [
   {
     "type": "box",
-    "name": "boxGraph",
+    "name": "boxNum",
     "title": "",
     "row": 1,
     "col": 0,
-    "width": 3,
-    "height": 1,
+    "width": 1,
+    "height": 3,
     "content": [
       {
         "type": "lcd",
-        "name": "lcdAccelZ",
-        "text": "Accéleration Z",
-        "data": "accZ",
+        "name": "lcdAltitude",
+        "text": "Altitude",
+        "data": "altitude",
         "row": 0,
         "col": 0,
         "width": 1,
@@ -20,24 +20,61 @@
       },
       {
         "type": "lcd",
-        "name": "lcdAccY",
-        "text": "Accéleration Y",
-        "data": "accY",
+        "name": "lcdTemp",
+        "text": "Température",
+        "data": "temperature",
         "row": 0,
         "col": 1,
         "width": 1,
         "height": 1
       },
       {
-        "type": "lcd",
-        "name": "lcdAccX",
-        "text": "Accéleration X",
-        "data": "accX",
-        "row": 0,
-        "col": 2,
-        "width": 1,
+        "type": "data box",
+        "name": "databox",
+        "data": [
+          "pression",
+          "accX",
+          "accY",
+          "accZ",
+          "gyrX",
+          "gyrY",
+          "gyrZ"
+        ],
+        "row": 1,
+        "col": 0,
+        "width": 2,
         "height": 1
+      }
+    ]
+  },
+  {
+    "type": "box",
+    "name": "boxGraph",
+    "title": "Graphiques",
+    "row": 4,
+    "col": 0,
+    "width": 1,
+    "height": 9,
+    "content": [
+      {
+        "type": "graph",
+        "name": "altAcc",
+        "data": {
+          "altitude": {
+            "name": "Altitude",
+            "color": [255,0,0]
+          },
+          "pressure": {
+            "name": "Pression",
+            "color": [0,255,0]
+          }
+        },
+        "row": 1,
+        "col": 0,
+        "width": 1,
+        "height": 5
       },
+
       {
         "type": "graph",
         "name": "graphAcc",
@@ -56,9 +93,9 @@
           }
         },
         "row": 1,
-        "col": 0,
-        "width": 3,
-        "height": 1
+        "col": 1,
+        "width": 1,
+        "height": 5
       }
     ]
   }
