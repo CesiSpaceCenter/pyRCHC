@@ -1,0 +1,40 @@
+QMainWindow {
+    margin: 10px;
+}
+
+QMainWindow, QWidget {
+    background-color: #eee;
+    color: #000;
+}
+
+QPushButton {
+    padding: 5px 8px;
+    background-color: #ccc;
+    color: #000;
+    border: 2px solid #363636;
+}
+
+QPushButton:hover {
+    border-color: #444;
+}
+
+QPushButton:pressed {
+    background-color: #444;
+}
+
+QLabel[objectName^="statusLabel_"] {
+    background-color: #eee;
+}
+
+PlotWidget {
+    border: 1px solid #eee;
+}
+
+QProgressBar {
+    text-align: center;
+}
+
+ QProgressBar::chunk {
+    background-color: #2ecc71;
+    text-align: center;
+ }

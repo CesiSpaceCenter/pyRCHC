@@ -20,46 +20,7 @@
    <string>RCH-C</string>
   </property>
   <property name="styleSheet">
-   <string notr="true">QMainWindow {
-	margin: 10px;
-}
-
-QMainWindow, QWidget {
-	background-color: #222;
-	color: #fff;
-}
-
-QPushButton {
-	padding: 5px 8px;
-	background-color: #363636;
-	color: #fff;
-	border: 2px solid #363636;
-}
-
-QPushButton:hover {
-	border-color: #444;
-}
-
-QPushButton:pressed {
-	background-color: #444;
-}
-
-QLabel[objectName^=&quot;statusLabel_&quot;] {
-	background-color: #363636;
-}
-
-PlotWidget {
-	border: 1px solid #363636;
-}
-
-QProgressBar {
-    text-align: center;
-}
-
- QProgressBar::chunk {
-	background-color: #2ecc71;
-	text-align: center;
- }</string>
+   <string notr="true"/>
   </property>
   <widget class="QWidget" name="centralwidget">
    <layout class="QGridLayout" name="gridLayout_2">

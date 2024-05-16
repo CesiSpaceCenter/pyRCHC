@@ -38,6 +38,9 @@ class MainWindow(QtWidgets.QMainWindow, ui.base_ui.Ui_MainWindow):
         # load the custom ui
         self.custom_ui = ui.Ui(self)
 
+        with open('style.css', 'r') as style_file:
+            self.setStyleSheet(style_file.read())
+
         self.show()
 
         self.logger.setMainWindow(self)
