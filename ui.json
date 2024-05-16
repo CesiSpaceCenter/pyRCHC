@@ -6,15 +6,25 @@
     "row": 1,
     "col": 0,
     "width": 1,
-    "height": 3,
+    "height": 2,
     "content": [
+      {
+        "type": "lcd",
+        "name": "lcdAltMax",
+        "text": "Apogée",
+        "data": "altitude",
+        "row": 0,
+        "col": 1,
+        "width": 1,
+        "height": 1
+      },
       {
         "type": "lcd",
         "name": "lcdAltitude",
         "text": "Altitude",
         "data": "altitude",
         "row": 0,
-        "col": 0,
+        "col": 2,
         "width": 1,
         "height": 1
       },
@@ -24,7 +34,7 @@
         "text": "Température",
         "data": "temperature",
         "row": 0,
-        "col": 1,
+        "col": 3,
         "width": 1,
         "height": 1
       },
@@ -40,9 +50,9 @@
           "gyrY",
           "gyrZ"
         ],
-        "row": 1,
+        "row": 0,
         "col": 0,
-        "width": 2,
+        "width": 1,
         "height": 1
       }
     ]
@@ -96,6 +106,22 @@
         "col": 1,
         "width": 1,
         "height": 5
+      },
+
+      {
+        "type": "3d scene",
+        "name": "3d",
+        "row": 1,
+        "col": 2,
+        "width": 1,
+        "height": 5,
+        "model": "cesinova.obj",
+        "scale": 0.025,
+        "data": {
+          "roll": "gyrX",
+          "pitch": "gyrY",
+          "yaw": "gyrZ"
+        }
       }
     ]
   }
