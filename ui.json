@@ -1,0 +1,128 @@
+[
+  {
+    "type": "box",
+    "name": "boxNum",
+    "title": "",
+    "row": 1,
+    "col": 0,
+    "width": 1,
+    "height": 2,
+    "content": [
+      {
+        "type": "lcd",
+        "name": "lcdAltMax",
+        "text": "Apogée",
+        "data": "altitude",
+        "row": 0,
+        "col": 1,
+        "width": 1,
+        "height": 1
+      },
+      {
+        "type": "lcd",
+        "name": "lcdAltitude",
+        "text": "Altitude",
+        "data": "altitude",
+        "row": 0,
+        "col": 2,
+        "width": 1,
+        "height": 1
+      },
+      {
+        "type": "lcd",
+        "name": "lcdTemp",
+        "text": "Température",
+        "data": "temperature",
+        "row": 0,
+        "col": 3,
+        "width": 1,
+        "height": 1
+      },
+      {
+        "type": "data box",
+        "name": "databox",
+        "data": [
+          "pression",
+          "accX",
+          "accY",
+          "accZ",
+          "gyrX",
+          "gyrY",
+          "gyrZ"
+        ],
+        "row": 0,
+        "col": 0,
+        "width": 1,
+        "height": 1
+      }
+    ]
+  },
+  {
+    "type": "box",
+    "name": "boxGraph",
+    "title": "Graphiques",
+    "row": 4,
+    "col": 0,
+    "width": 1,
+    "height": 9,
+    "content": [
+      {
+        "type": "graph",
+        "name": "altAcc",
+        "data": {
+          "altitude": {
+            "name": "Altitude",
+            "color": [255,0,0]
+          },
+          "pressure": {
+            "name": "Pression",
+            "color": [0,255,0]
+          }
+        },
+        "row": 1,
+        "col": 0,
+        "width": 1,
+        "height": 5
+      },
+
+      {
+        "type": "graph",
+        "name": "graphAcc",
+        "data": {
+          "accX": {
+            "name": "Accélération X",
+            "color": [255,0,0]
+          },
+          "accY": {
+            "name": "Accélération Y",
+            "color": [0,255,0]
+          },
+          "accZ": {
+            "name": "Accélération Z",
+            "color": [0,0,255]
+          }
+        },
+        "row": 1,
+        "col": 1,
+        "width": 1,
+        "height": 5
+      },
+
+      {
+        "type": "3d scene",
+        "name": "3d",
+        "row": 1,
+        "col": 2,
+        "width": 1,
+        "height": 5,
+        "model": "cesinova.obj",
+        "scale": 0.025,
+        "data": {
+          "roll": "gyrX",
+          "pitch": "gyrY",
+          "yaw": "gyrZ"
+        }
+      }
+    ]
+  }
+]

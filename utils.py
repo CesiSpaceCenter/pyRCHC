@@ -1,6 +1,6 @@
 import os
 
-from PyQt5 import QtCore
+from PyQt6 import QtCore
 
 
 # créer un QTimer en 1 ligne, au lieu de 4

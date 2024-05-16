@@ -1,4 +1,4 @@
-import math
+import re
 import subprocess
 import time
 from datetime import datetime
@@ -6,18 +6,18 @@ from datetime import datetime
 import serial
 import serial.serialutil
 import serial.tools.list_ports
-from PyQt5 import QtWidgets, uic
+from PyQt6 import QtWidgets
 
+import ui
 import utils
 from constants import *
-from data import Data, IntegrityCheckException
-from graph import GraphData
+from data import Data
 from logger import Logger
 from session import Session
 from settings import Settings
 
 
-class MainWindow(QtWidgets.QMainWindow):
+class MainWindow(QtWidgets.QMainWindow, ui.base_ui.Ui_MainWindow):
     def __init__(self, *args, **kwargs):
         super(MainWindow, self).__init__(*args, **kwargs)
 
@@ -34,9 +34,14 @@ class MainWindow(QtWidgets.QMainWindow):
 
         self.logger.log('Création de la fenêtre')
 
-        uic.loadUi('rchc.ui', self)
+        self.setupUi(self)  # load the base ui
+        # load the custom ui
+        self.custom_ui = ui.Ui(self)
+
+        with open('style.css', 'r') as style_file:
+            self.setStyleSheet(style_file.read())
+
         self.show()
-        self.init_graph()
 
         self.logger.setMainWindow(self)
 
@@ -44,16 +49,9 @@ class MainWindow(QtWidgets.QMainWindow):
         self.serial.baudrate = 9600
         self.serial.timeout = 0.5
 
-        self.data = Data(self.logger)
+        self.data = Data(self.logger, self.serial)
 
         self.sessionButton.clicked.connect(self.session_button)
-        self.sessionLabel.mousePressEvent = lambda e: self.open_session_folder()
-
-        self.resetGyroButton.clicked.connect(lambda: self.send_command(0))
-        self.incSpeedButton.clicked.connect(lambda: self.send_command(1))
-        self.decSpeedButton.clicked.connect(lambda: self.send_command(2))
-        self.startButton.clicked.connect(lambda: self.send_command(3))
-        self.stopButton.clicked.connect(lambda: self.send_command(4))
 
         self.update_serial_list()
         self.serialComboBox.activated.connect(self.handle_serial_combobox)
@@ -90,12 +88,6 @@ class MainWindow(QtWidgets.QMainWindow):
             self.logTextEdit.appendPlainText(line)
 
         self.logTextEdit.verticalScrollBar().setValue(self.logTextEdit.verticalScrollBar().maximum())  #  on scroll à la fin
-
-    def send_command(self, command: int) -> None:
-        if self.serial.is_open:
-            command_ascii = bytes(str(command), 'utf-8')
-            self.serial.write(command_ascii)
-            self.logger.log(f'Commande {command} envoyée')
 
     def session_button(self) -> None:
         if self.session is None:  # session fermée, on doit alors la créer
@@ -152,27 +144,9 @@ class MainWindow(QtWidgets.QMainWindow):
         self.serialComboBox.addItem('Actualiser')
         self.serialComboBox.addItem('Déconnecter')
 
-    graph_data = {}
-
-    def init_graph(self) -> None:
-        self.accGraph.addLegend()
-        self.gyroGraph.addLegend()
-        self.motorGraph.addLegend()
-
-        self.graph_data['temp'] = GraphData(self.tempGraph, 'Temperature', (255, 0, 0))
-        self.graph_data['accX'] = GraphData(self.accGraph, 'x', (255, 0, 0))
-        self.graph_data['accY'] = GraphData(self.accGraph, 'y', (0, 255, 0))
-        self.graph_data['accZ'] = GraphData(self.accGraph, 'z', (0, 0, 255))
-        self.graph_data['gyroX'] = GraphData(self.gyroGraph, 'x', (255, 0, 0))
-        self.graph_data['gyroY'] = GraphData(self.gyroGraph, 'y', (0, 255, 0))
-        self.graph_data['gyroZ'] = GraphData(self.gyroGraph, 'z', (0, 0, 255))
-
-        self.graph_data['leftSpeed'] = GraphData(self.motorGraph, 'left', (255, 0, 0))
-        self.graph_data['rightSpeed'] = GraphData(self.motorGraph, 'right', (0, 0, 255))
-
-    status = {}
     last_successful_data = 0
-
+    status = {}
+    
     def update(self) -> None:
         self.update_data()
         self.update_status()
@@ -182,28 +156,20 @@ class MainWindow(QtWidgets.QMainWindow):
             'connexion': 0,
             'integrite': 0,
             'recepteur': 0,
-            'timeout': 0,
-
-            'motors': 0,
-            'motorL': 0,
-            'motorR': 0,
-
-            'sensors': 0,
-            'ir': 0,
-            'acc': 0
+            'timeout': 0
         }
-
-        if not self.serial.is_open:
-            self.status['connexion'] = 1
-            self.status['recepteur'] = 2
-            return
 
         if time.time() - self.last_successful_data > 4:  # pas de données valides pour plus de 4s
             self.status['connexion'] = 1
             self.status['timeout'] = 1
 
+        if not self.serial.is_open and False:
+            self.status['connexion'] = 1
+            self.status['recepteur'] = 2
+            return
+
         try:
-            raw_data = self.serial.readline()
+            data, errors = self.data.fetch()
             self.status['recepteur'] = 4
         except serial.serialutil.SerialException:
             self.logger.log('Erreur: communication avec le récepteur impossible')
@@ -211,54 +177,20 @@ class MainWindow(QtWidgets.QMainWindow):
             self.status['recepteur'] = 1
             return
 
-        if raw_data.decode().split(',')[0] == 'msg':
-            self.telemetryTextEdit.appendPlainText(raw_data.decode().split(',')[1].replace('\r\n', ''))
-            return
-
-        try:
-            data = self.data.process(raw_data)
-            self.status['connexion'] = 4
-            self.status['integrite'] = 4
-        except IntegrityCheckException as err:
-            self.logger.log('Vérification des données échouée:', str(err), raw_data)
-            self.status['connexion'] = 1
-            self.status['integrite'] = 1
-            return
-
-        if data['leftSpeed'] > 0:
-            self.status['motorL'] = 4
-
-        if data['rightSpeed'] > 0:
-            self.status['motorR'] = 4
+        if errors:
+            print(errors)
+            for error in errors:
+                self.logger.log(f'Erreur: {error["message"]}')
+                self.status[error['status_item']] = error['severity']
 
         self.last_successful_data = time.time()
 
-        self.graph_data['temp'].append(data['temp'])
-        self.graph_data['accX'].append(data['accX'])
-        self.graph_data['accY'].append(data['accY'])
-        self.graph_data['accZ'].append(data['accZ'])
-        self.graph_data['gyroX'].append(data['gyroX'])
-        self.graph_data['gyroY'].append(data['gyroY'])
-        self.graph_data['gyroZ'].append(data['gyroZ'])
-
-        self.graph_data['leftSpeed'].append(data['leftSpeed'])
-        self.graph_data['rightSpeed'].append(data['rightSpeed'])
-
-        if data['state'] == 0:
-            self.statusLabel_global.setText('READY')
-        elif data['state'] == 1:
-            self.statusLabel_global.setText('FORWARD')
-        elif data['state'] == 2:
-            self.statusLabel_global.setText('TURN')
-        elif data['state'] == -1:
-            self.statusLabel_global.setText('INIT')
-        else:
-            self.statusLabel_global.setText('UNKNOWN')
+        self.custom_ui.update_data(data)
 
     def update_status(self) -> None:
         for item in self.status:
             if self.status[item] == 0:
-                self.__dict__[f'statusLabel_{item}'].setStyleSheet('background-color: #363636')  # gris
+                self.__dict__[f'statusLabel_{item}'].setStyleSheet('background-color: #bbb')  # gris
             elif self.status[item] == 1:
                 self.__dict__[f'statusLabel_{item}'].setStyleSheet('background-color: red')  # rouge
             elif self.status[item] == 2:

@@ -1,0 +1,36 @@
+{
+  "format": "ascii_char_separated",
+  "separator": ",",
+  "newline": "\n",
+  "items": {
+    "accX": {
+      "type": "float"
+    },
+    "accY": {
+      "type": "float"
+    },
+    "accZ": {
+      "type": "float"
+    },
+
+    "gyrX": {
+      "type": "float"
+    },
+    "gyrY": {
+      "type": "float"
+    },
+    "gyrZ": {
+      "type": "float"
+    },
+
+    "pression": {
+      "type": "float"
+    },
+    "altitude": {
+      "type": "float"
+    },
+    "temperature": {
+      "type": "float"
+    }
+  }
+}
