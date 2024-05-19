@@ -6,7 +6,7 @@ if TYPE_CHECKING:
 
 
 class Box:
-    def __init__(self, window: MainWindow, parent: QtWidgets.QWidget, parent_grid: QtWidgets.QLayout, properties: dict):
+    def __init__(self, window: MainWindow, parent: QtWidgets.QWidget, _parent_grid: QtWidgets.QLayout, properties: dict):
         self.window = window
 
         self.element = QtWidgets.QGroupBox(parent)
@@ -15,8 +15,4 @@ class Box:
         self.element.setMinimumHeight(1)
 
         self.grid = QtWidgets.QGridLayout(self.element)
-        self.grid.setObjectName(f'{properties["name"]}_grid')
-
-
-    def set_data(self, data):
-        pass
+        self.grid.setObjectName(properties['name'] + '_grid')

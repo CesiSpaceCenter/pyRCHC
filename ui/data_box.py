@@ -1,8 +1,6 @@
 from __future__ import annotations
 from PyQt6 import QtWidgets
 from PyQt6.QtGui import QFont, QFontMetrics
-import pyqtgraph as pg
-import numpy as np
 from typing import TYPE_CHECKING
 
 
@@ -13,7 +11,7 @@ if TYPE_CHECKING:
 class DataBox:
     data_series = {}
 
-    def __init__(self, window: MainWindow, parent: QtWidgets.QWidget, parent_grid: QtWidgets.QLayout, properties: dict):
+    def __init__(self, window: MainWindow, parent: QtWidgets.QWidget, _parent_grid: QtWidgets.QLayout, properties: dict):
         self.window = window
         self.properties = properties
 
@@ -36,8 +34,11 @@ class DataBox:
                     if self.char_width*len(current_line + data_text) > self.element.width():
                         text += current_line + '\n'
                         current_line = data_text
-                    else:
+                    else:  # if there is still space, just append the new text
                         current_line += data_text
+
+                    # if this is the last data item to display,
+                    # add the current line to the text (do not wait for it to be complete)
                     if i == len(self.properties['data'])-1:
                         text += current_line
             self.element.setText(text)

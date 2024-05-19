@@ -1,6 +1,5 @@
-import os
 import json
-import serial
+import serial as pyserial
 import random
 
 from constants import *
@@ -12,6 +11,7 @@ from decoders import decoders
 class DecodeException(Exception):
     pass
 
+
 class IncorrectConfigurationException(Exception):
     pass
 
@@ -20,7 +20,7 @@ class Data:
     raw_buffer = bytes()
     buffer = []
 
-    def __init__(self, logger: Logger, serial: serial.Serial) -> None:
+    def __init__(self, logger: Logger, serial: pyserial.Serial) -> None:
         self.logger = logger
         self.serial = serial
         with open(os.path.join(APP_DIR, 'data_config.json'), 'r') as f:
@@ -33,22 +33,22 @@ class Data:
         errors = []
         
         for item_value in data:
-            # on récupère la configuration de l'élément
+            # fetch the configuration (from data_config.json) of the current data item received
             while True:
-                try:
+                try:  # try to get find the item in the config
                     item_name = list(self.config['items'].keys())[config_item_index]
                     config_item = self.config['items'][item_name]
                     config_item_index += 1
-                except Exception as e:  # on a pas trouvé l'élément de config
+                except Exception as e:  # if an exception is raised, it means the we don't know how to decode the received item data
                     raise IncorrectConfigurationException(f'Incorrect configuration: {e}')
 
-                # si l'élément de config actuel n'a pas de condition, ou alors si cette condition est validée
-                # alors on arrête le while et on passe à la suite
+                # if the config element does not have condition, or if that condition is true
+                # then we stop the while loop, and we proceed
                 if 'if' not in config_item or out_data[config_item['if']['key']] == config_item['if']['value']:
                     expected_data_count += 1
                     break
 
-            # on convertit l'élément au type correspondant
+            # we convert the element to the corresponding python type
             item_type = {
                 'string': str,
                 'int8': int,
@@ -63,17 +63,19 @@ class Data:
             try:
                 item_value = item_type(item_value)
             except ValueError:
+                # the value is not convertible to this type (eg: trying to convert "abc" to int)
                 errors.append({
                     'message': f'Cannot convert {item_value} to {config_item["type"]}',
                     'status_item': 'integrite',
                     'severity': 2
                 })
 
-            # on effectue toutes les vérifications (minimum, maximum, etc)
+            # proceed to the data coherence check (minimum, maximum, etc)
             if 'checks' in config_item:
                 for check_item in config_item['checks']:
                     error_message = None
-                    # dans le cas ou il y a bien une erreur, on définit le message puis on ajoute à la liste
+                    # TODO: change this to add a error element to "errors" everytime a check doesn't pass
+                    # if a check does not pass, define the error message
                     if check_item['check'] == 'min_length' and len(item_value) < check_item['value']:
                         error_message = f'{item_name} is not long enough ({len(item_value)} < {check_item["value"]})'
 
@@ -95,8 +97,8 @@ class Data:
                             'status_item': 'integrite',
                             'severity': 2
                         })
-            out_data[item_name] = item_value
-        if len(out_data) != expected_data_count:
+            out_data[item_name] = item_value  # add the value to the list that will be returned
+        if len(out_data) != expected_data_count:  # if we got more or less data than expected
             errors.append({
                 'message': f'Incorrect data count. Expected {expected_data_count} got {len(out_data)}',
                 'status_item': 'integrite',
@@ -105,52 +107,53 @@ class Data:
         return out_data, errors
 
     def fetch(self) -> (dict, list):
-        #raw_data = self.serial.readline()
-        #self.serial.flush()
-
-        raw_data = ''
-        raw_data += str(random.randint(0, 50) / 10) + ','  # accX
-        raw_data += str(random.randint(0, 50) / 10) + ','  # accY
-        raw_data += str(random.randint(0, 50) / 10) + ','  # accZ
-        raw_data += str(random.randint(0, 50) / 10) + ','  # gyrX
-        raw_data += str(random.randint(0, 50) / 10) + ','  # gyrY
-        raw_data += str(random.randint(0, 50) / 10) + ','  # gyrZ
-        raw_data += str(random.randint(0, 50) / 10) + ','  # pres
-        raw_data += str(random.randint(0, 1000) / 10) + ','  # alt
-        raw_data += str(random.randint(0, 50) / 10) + '\n'  # temp
-        raw_data = raw_data.encode()
+        if bool(os.environ.get('DEBUG', False)):  # debug mode, so we don't need to have a serial connection
+            raw_data = ''
+            raw_data += str(random.randint(0, 50) / 10) + ','  # accX
+            raw_data += str(random.randint(0, 50) / 10) + ','  # accY
+            raw_data += str(random.randint(0, 50) / 10) + ','  # accZ
+            raw_data += str(random.randint(0, 50) / 10) + ','  # gyrX
+            raw_data += str(random.randint(0, 50) / 10) + ','  # gyrY
+            raw_data += str(random.randint(0, 50) / 10) + ','  # gyrZ
+            raw_data += str(random.randint(0, 50) / 10) + ','  # pres
+            raw_data += str(random.randint(0, 1000) / 10) + ','  # alt
+            raw_data += str(random.randint(0, 50) / 10) + '\n'  # temp
+            raw_data = raw_data.encode()
+        else:
+            raw_data = self.serial.readline()
+            self.serial.flush()
 
         self.raw_buffer += raw_data
 
-        # on décode les données brutes
+        # we decode the raw data
         try:
             decoded_raw = decoders[self.config['format']].decode(raw_data, self.config)
         except UnicodeDecodeError:
             raise DecodeException('Failed to decode')
 
-        # on applique les vérifications, les filtres
+        # we process the raw data (checks, filters)
         decoded, errors = self.process(decoded_raw)
         self.buffer.append(decoded)
         return decoded, errors
 
-    def save(self, session: Session) -> None:  # on sauvegarde à la fois les données et le log
-        if session is not None:  # ne faire ça que si la session est ouverte
-            # fichier data_raw.bin dans le dossier de session
+    def save(self, session: Session) -> None:  # save the buffered data and the log
+        if session is not None:  # only do that if a session is open
+            # raw data, not decoded
             with open(os.path.join(session.folder, 'data_raw.bin'), 'ab') as f:
                 f.write(self.raw_buffer)
-                self.raw_buffer = bytes()  # réinitialisation du buffer
+                self.raw_buffer = bytes()  # reset the buffer
 
             csv_path = os.path.join(session.folder, 'data.csv')
-            # si le dossier data.csv n'existe pas encore, on écrit la première ligne (noms des colonnes)
+            # if the csv file does not exist, create it and write the columns names
             if not os.path.exists(csv_path):
                 with open(csv_path, 'w') as f:
                     f.write(','.join(self.buffer[0].keys()))
 
-            # on écrit les données du buffer dans data.csv
+            # write the decoded data into the csv
             with open(csv_path, 'a') as f:
                 for line in self.buffer:
                     f.write('\n')
-                    f.write(','.join( [str(val) for val in line.values()] ))
-                self.buffer = []  # réinitialisation du buffer
+                    f.write(','.join(map(str, line.values())))
+                self.buffer = []  # reset the buffer
 
-        self.logger.save()  # en même temps, on sauvegarde les logs
+        self.logger.save()

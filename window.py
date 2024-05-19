@@ -26,80 +26,88 @@ class MainWindow(QtWidgets.QMainWindow, ui.base_ui.Ui_MainWindow):
     session = None
     data = None
     serial = None
+    custom_ui = None
 
-    # fonction séparée pour pouvoir passer les args (non autorisé par la classe QMainWindow sinon)
+    # separate function from constructor because we can't change __init__'s signature
     def init(self, settings: Settings, logger: Logger) -> None:
         self.settings = settings
         self.logger = logger
 
-        self.logger.log('Création de la fenêtre')
+        self.logger.log('Creating window')
 
         self.setupUi(self)  # load the base ui
-        # load the custom ui
-        self.custom_ui = ui.Ui(self)
+        self.custom_ui = ui.Ui(self)  # load the custom ui
 
+        # load the stylesheet
         with open('style.css', 'r') as style_file:
             self.setStyleSheet(style_file.read())
 
         self.show()
 
-        self.logger.setMainWindow(self)
+        self.logger.set_main_window(self)
 
+        # initialize serial connection
+        # TODO: move this to data.py
         self.serial = serial.Serial()
         self.serial.baudrate = 9600
         self.serial.timeout = 0.5
 
         self.data = Data(self.logger, self.serial)
 
-        self.sessionButton.clicked.connect(self.session_button)
+        self.sessionButton.clicked.connect(self.session_button)  # button to start or end a session
 
-        self.update_serial_list()
-        self.serialComboBox.activated.connect(self.handle_serial_combobox)
+        self.update_serial_list()  # update the serial devices list
+        self.serialComboBox.activated.connect(self.handle_serial_combobox)  # choose a new serial device
 
-        # timer pour l'horloge
+        # timer used to update the clock
         self.update_clock()
         utils.init_qtimer(self, 1000, self.update_clock)
 
-        # timer pour le timer (?)
+        # timer for the timer (???)
         utils.init_qtimer(self, 10, self.update_timer)
 
-        # timer principal pour la mise à jour des données
+        # main timer to update data
         utils.init_qtimer(self, 50, self.update)
 
         # timer d'écriture des données reçues sur le disque dur
-        # on n'exécute la fonction save que si la session est ouverte
-        utils.init_qtimer(self, 5000, lambda: self.data.save(self.session) if self.session is not None else None)
+        # timer to write data on the disk
+        utils.init_qtimer(self, 5000, lambda: self.data.save(self.session))
 
     def handle_log(self, line: str) -> None:
-        last_line = self.logTextEdit.toPlainText().split('\n')[-1]  # on récupère la dernière ligne
-        if last_line.startswith(line):  # si la dernière ligne a le même début que la ligne que l'on veut ajouter
-            num = re.findall(r'\d+', last_line.replace(line, ''))  # on cherche le numéro dans la fin de la dernière ligne
-            if not num:  # s'il n'y en a pas
-                # cela signifie que c'était la première ligne
-                # on rajoute donc le suffixe pour indiquer que la ligne se répète
-                self.logTextEdit.setPlainText(self.logTextEdit.toPlainText() + ' (x2)')  # ici on évite d'utiliser appendPlainText(), car il ajoute un \n avant
-            else:  # s'il y en a
-                # cela signifie que la dernière ligne était déjà répétée
-                num = int(num[0]) + 1  # on ajoute 1 au nombre de répétitions
-                # on prend le texte, on enlève le nombre de répétitions de la ligne précédente
-                # puis on ajoute le nouveau
-                self.logTextEdit.setPlainText(' '.join(self.logTextEdit.toPlainText().split(' ')[:-1]) + f' (x{num})')
-        else:  # si c'est une nouvelle ligne, on l'ajoute juste à la suite
+        # in the log box, we don't want to write a message if it is logged multiple times, so we add a number
+        # example instead of :
+        #   warning! somethings happening
+        #   warning! somethings happening
+        #   warning! somethings happening
+        # we have :
+        #   warning! somethings happening (x3)
+
+        last_line = self.logTextEdit.toPlainText().split('\n')[-1]  # fetch the last line of the log box
+        if last_line.startswith(line):  # if the last line's beginning is the same as the new line, it is a repetition
+            # remove the log message (so we end up with "(x3)", and then find the number in that (3)
+            num = re.findall(r'\d+', last_line.replace(line, ''))
+            if not num:  # if there is no number yet
+                # that means this is the first time this line is repeating
+                # so we just add the suffix
+                # we don't use appendPlainText() here because it adds a newline before
+                self.logTextEdit.setPlainText(self.logTextEdit.toPlainText() + ' (x2)')
+            else:  # if there is a number
+                # that means this line has already been repeated
+                num = int(num[0]) + 1  # we add 1 to this repeat count
+                # remove the part after the last space (which is the (x3)),
+                # and add the new suffix
+                self.logTextEdit.setPlainText(self.logTextEdit.toPlainText().rpartition(' ')[0] + f' (x{num})')
+        else:  # this is just a new message, not a repetition
             self.logTextEdit.appendPlainText(line)
 
-        self.logTextEdit.verticalScrollBar().setValue(self.logTextEdit.verticalScrollBar().maximum())  #  on scroll à la fin
+        # scroll to th end
+        self.logTextEdit.verticalScrollBar().setValue(self.logTextEdit.verticalScrollBar().maximum())
 
     def session_button(self) -> None:
-        if self.session is None:  # session fermée, on doit alors la créer
+        if self.session is None:  # session is closed, we open a new one
             self.session = Session(self, self.logger)
-        else:  # session déjà ouverte, on doit alors la fermer
+        else:  # session is open, we close it
             self.session.end()
-
-    def open_session_folder(self) -> None:
-        if self.session is not None:
-            subprocess.Popen(['open', self.session.folder])
-        else:
-            subprocess.Popen(['open', SESSION_DIR])
 
     def update_clock(self) -> None:
         date_time = datetime.now().strftime('%d/%m/%Y %H:%M:%S')
@@ -109,40 +117,47 @@ class MainWindow(QtWidgets.QMainWindow, ui.base_ui.Ui_MainWindow):
 
     def update_timer(self) -> None:
         if self.session is not None:
+            # seconds since the timer started
             date_time = round((datetime.now() - self.session.timer_start).total_seconds(), 1)
             self.timerLabel.setText('t+' + str(date_time) + 's')
         else:
             self.timerLabel.setText('t+0s')
 
     def handle_serial_combobox(self, device_index: int) -> None:
-        combobox_items = [self.serialComboBox.itemText(i) for i in range(self.serialComboBox.count())]
-        selected_item = combobox_items[device_index]
+        #combobox_items = [self.serialComboBox.itemText(i) for i in range(self.serialComboBox.count())]
+        selected_item = self.serialComboBox.itemText(device_index)
 
-        if selected_item == 'Actualiser':
-            pass  # dans tous les cas, la liste est actualisée à la fin de la fonction
+        if selected_item == 'Refresh':
+            pass  # refresh is done in every case at the end of the function
 
-        elif selected_item == 'Déconnecter':  # dernier élément du combobox, élément "Déconnecter"
+        elif selected_item == 'Disconnect':
+            # close the serial connection if it is open
             if self.serial.is_open:
-                self.logger.log(f'Déconnexion du port série {self.serial.port}')
+                self.logger.log(f'Closing serial connection {self.serial.port}')
                 self.serial.close()
-        else:
-            if self.serial.is_open:  # si la connexion est déjà ouverte
-                self.serial.close()  # on la ferme
-            self.serial.port = self.serial_list[
-                device_index].device  # on prend le port série sélectionné dans le combobox
-            self.logger.log(f'Connexion au port série {self.serial.port}')
+
+        else:  # a serial device is selected
+            if self.serial.is_open:  # if the connection is already open
+                self.serial.close()
+            # get the selected device & connect
+            self.serial.port = self.serial_list[device_index].device
+            self.logger.log(f'Connecting to serial port {self.serial.port}')
             self.serial.open()
 
         self.update_serial_list()
 
     def update_serial_list(self) -> None:
-        self.serialComboBox.clear()  # on enlève tous les élements du combobox
-        self.serial_list = serial.tools.list_ports.comports()
+        self.serialComboBox.clear()  # remove every elements from the combobox
+        self.serial_list = serial.tools.list_ports.comports()  # get the devices list
         for device in self.serial_list:
             self.serialComboBox.addItem(
-                device.device + ' : ' + device.description)  # on ajoute le port à la liste (port + nom)
-        self.serialComboBox.addItem('Actualiser')
-        self.serialComboBox.addItem('Déconnecter')
+                device.device + ' : ' + device.description)  # add a combobox item (name + path)
+
+        # add non devices items
+        self.serialComboBox.addItem('Refresh')
+        self.serialComboBox.addItem('Disconnect')
+
+    # the following section is not commented because it will be completely changed in a future update
 
     last_successful_data = 0
     status = {}
@@ -159,11 +174,11 @@ class MainWindow(QtWidgets.QMainWindow, ui.base_ui.Ui_MainWindow):
             'timeout': 0
         }
 
-        if time.time() - self.last_successful_data > 4:  # pas de données valides pour plus de 4s
+        if time.time() - self.last_successful_data > 4:  # no data for more than 4 seconds
             self.status['connexion'] = 1
             self.status['timeout'] = 1
 
-        if not self.serial.is_open and False:
+        if not self.serial.is_open and not bool(os.environ.get('DEBUG', False)):  # serial port is not open
             self.status['connexion'] = 1
             self.status['recepteur'] = 2
             return

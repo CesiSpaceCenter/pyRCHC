@@ -14,43 +14,45 @@ class Logger:
         filename = f'{time}.log'
 
         self.log_path = os.path.join(LOG_DIR, filename)
-        self.stdout = sys.stdout
-
-        self.secondary_action = lambda line: 0
 
         self.file = open(self.log_path, 'a')
 
-        self.log('Démarrage du logger')
+        self.log('Logger started')
 
     def save(self) -> None:
-        # pour sauvegarder, on ferme puis on rouvre le fichier
+        # to save the content of the file, close it and reopen it
         self.file.close()
         self.file = open(self.log_path, 'a')
 
     MainWindow = None
 
-    def setMainWindow(self, mw) -> None:
+    def set_main_window(self, mw) -> None:
         self.MainWindow = mw
 
     def log(self, *raw_data: str | int | float | bool | list | dict | bytes) -> None:
-        # on converti tout en string, et on nettoie
+        # convert everything to string, and clean it
         data = ''
         for element in raw_data:
             data += ' ' + str(element)
+
         data = data.rstrip()
-        if len(data) == 0:
+
+        if len(data) == 0:  # don't log anything if there is no data
             return
-        # on récupère quelques infos : le fichier, la ligne, le temps
+
+        # get some traceback: filename, line number, time
         stack = inspect.stack()[1]
         filename = os.path.basename(stack.filename)
         lineno = stack.lineno
         time = datetime.now().strftime('%d/%m/%Y %H:%M:%S')
         line = f'[{filename}:{lineno}] [{time}] {data}'
-        # on print dans la console, on appelle la fonction handle_log pour quelques actions spéciales et on écrit dans le fichier
+
+        # print into stdout
         print(line)
+
+        # write it into the log box
         if self.MainWindow is not None:
             self.MainWindow.handle_log(data)
-        self.file.write(line + '\n')
 
-    def close(self) -> None:
-        self.file.close()
+        # write it into the log file
+        self.file.write(line + '\n')

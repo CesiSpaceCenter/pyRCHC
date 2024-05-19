@@ -17,14 +17,14 @@ class RocketView3D(Qt3DWindow):
         lens = self.camera().lens()
         fov = lens.fieldOfView()
         new_fov = fov + delta
-        if new_fov not in range(20, 120):
+        if new_fov not in range(20, 120):  # limit zoom
             return
         lens.setFieldOfView(new_fov)
 
 
-def create_bar(root_entity) -> (QEntity, QTransform, QCylinderMesh):
+def create_bar(root_entity) -> (QEntity, QTransform, QCylinderMesh):  # bars for the x y z axis
     bar_entity = QEntity(root_entity)
-    bar_mesh = QCylinderMesh()
+    bar_mesh = QCylinderMesh(None)
     bar_mesh.setLength(50)
     bar_mesh.setRadius(0.1)
     bar_mesh.setSlices(4)
@@ -40,11 +40,13 @@ def create_bar(root_entity) -> (QEntity, QTransform, QCylinderMesh):
 def create_scene(model_file: str) -> tuple[QEntity, QTransform]:
     root_entity = QEntity()
 
-    rocket_entity = QEntity(root_entity)
-    rocket_mesh = QMesh()
-    rocket_mesh.setSource(QUrl.fromLocalFile(model_file))
+    # create the rocket enity with its mesh, material and transform
 
-    rocket_material = QPhongMaterial()
+    rocket_entity = QEntity(root_entity)
+    rocket_mesh = QMesh(None)
+    rocket_mesh.setSource(QUrl.fromLocalFile(model_file))  # load the 3d model into the mesh
+
+    rocket_material = QPhongMaterial(None)
     rocket_material.setDiffuse(QColorConstants.LightGray)
 
     rocket_transform = QTransform()
@@ -81,25 +83,25 @@ class Scene3D:
         self.window = window
         self.properties = properties
 
-        view_3d = RocketView3D()
+        view_3d = RocketView3D(None)
+        # set the background of the scene to be the same as the background of the window
+        # TODO: do this automatically (from the stylesheet)
         background_color = QColor().fromRgb(238, 238, 238)
         view_3d.defaultFrameGraph().setClearColor(background_color)
         self.element = QtWidgets.QWidget.createWindowContainer(view_3d)
 
         self.view_scene, self.rocket_transform = create_scene(properties['model'])
-        if 'scale' in properties:
+        if 'scale' in properties:  # scale the model if needed
             self.rocket_transform.setScale(properties['scale'])
 
-        # Camera
         view_cam = view_3d.camera()
         view_cam.lens().setPerspectiveProjection(50, 16 / 9, 0.1, 1000)
         view_cam.setPosition(QVector3D(30, 30, -30))
         view_cam.setViewCenter(QVector3D(0, 0, 0))
 
-        # Camera controls
         cam_ctrl = QOrbitCameraController(self.view_scene)
-        cam_ctrl.setLinearSpeed(0)
-        cam_ctrl.setLookSpeed(-500)
+        cam_ctrl.setLinearSpeed(0)  # disable translating the camera
+        cam_ctrl.setLookSpeed(-500)  # negative so it feels like we are "grabbing" the view (more natural)
         cam_ctrl.setCamera(view_cam)
 
         view_3d.setRootEntity(self.view_scene)
@@ -108,6 +110,7 @@ class Scene3D:
     def set_data(self, data):
         if 'data' in self.properties:
             data_properties = self.properties['data']
+            # -90 so the rocket is upright (probably not right)
             self.rocket_transform.setRotationX(data[data_properties['roll']] - 90)
             self.rocket_transform.setRotationY(data[data_properties['pitch']])
             self.rocket_transform.setRotationZ(data[data_properties['yaw']])

@@ -7,20 +7,21 @@ if TYPE_CHECKING:
 
 
 class Lcd:
-    def __init__(self, window: MainWindow, parent: QtWidgets.QWidget, parent_grid: QtWidgets.QLayout, properties: dict):
+    def __init__(self, window: MainWindow, parent: QtWidgets.QWidget, _parent_grid: QtWidgets.QLayout, properties: dict):
         self.window = window
         self.properties = properties
 
+        # layout that will contain the label and the lcd
         self.element = QtWidgets.QHBoxLayout()
-        self.element.setObjectName(f'{self.properties["name"]}_layout')
+        self.element.setObjectName(self.properties['name'] + '_layout')
 
         self.label = QtWidgets.QLabel(parent)
-        self.label.setObjectName(f'{self.properties["name"]}_label')
+        self.label.setObjectName(self.properties['name'] + '_label')
         self.label.setText(self.properties['text'])
         self.label.setAlignment(Qt.AlignmentFlag.AlignRight | Qt.AlignmentFlag.AlignVCenter)
 
         self.lcd = QtWidgets.QLCDNumber(parent)
-        self.lcd.setObjectName(f'{self.properties["name"]}_lcd')
+        self.lcd.setObjectName(self.properties['name'] + '_lcd')
         self.lcd.setSegmentStyle(QtWidgets.QLCDNumber.SegmentStyle.Flat)
 
         self.element.addWidget(self.label)

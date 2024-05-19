@@ -9,9 +9,9 @@ from logger import Logger
 from settings import Settings
 from window import MainWindow
 
-signal.signal(signal.SIGINT, signal.SIG_DFL)
+signal.signal(signal.SIGINT, signal.SIG_DFL)  # allows to quit on KeyboardInterrupt
 
-pg.setConfigOption('background', (0, 0, 0, 0))  # fond transparent
+pg.setConfigOption('background', (0, 0, 0, 0))  # transparent background
 pg.setConfigOption('antialias', True)
 
 if __name__ == '__main__':
@@ -21,6 +21,7 @@ if __name__ == '__main__':
     if not os.path.exists(SESSION_DIR):
         os.mkdir(SESSION_DIR)
 
+    # TODO: make every class like this a singleton
     logger = Logger()
     settings = Settings(logger)
 

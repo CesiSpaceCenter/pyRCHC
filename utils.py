@@ -3,7 +3,7 @@ import os
 from PyQt6 import QtCore
 
 
-# créer un QTimer en 1 ligne, au lieu de 4
+# create a QTimer in one line instead of 4
 def init_qtimer(parent, interval: int, connector) -> None:
     timer = QtCore.QTimer(parent)
     timer.setInterval(interval)
@@ -11,6 +11,7 @@ def init_qtimer(parent, interval: int, connector) -> None:
     timer.start()
 
 
+# recursively get a folder's size
 def get_dir_size(path: str) -> int:
     total = 0
     with os.scandir(path) as it:
