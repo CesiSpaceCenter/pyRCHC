@@ -1,8 +1,8 @@
-numpy==1.26.3
+numpy==1.26.4
 PyQt6==6.7.0
 PyQt6-3D==6.7.0
 PyQt6-3D-Qt6==6.7.0
 PyQt6-Qt6==6.7.0
 PyQt6-sip==13.6.0
-pyqtgraph==0.13.3
+pyqtgraph==0.13.7
 pyserial==3.5
