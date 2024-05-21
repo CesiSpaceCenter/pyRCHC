@@ -1,5 +1,4 @@
 import re
-import subprocess
 import time
 from datetime import datetime
 
@@ -98,7 +97,7 @@ class MainWindow(QtWidgets.QMainWindow, ui.base_ui.Ui_MainWindow):
 
     def session_button(self) -> None:
         if self.session is None:  # session is closed, we open a new one
-            self.session = Session(self, self.logger)
+            self.session = Session(self)
         else:  # session is open, we close it
             self.session.end()
 
