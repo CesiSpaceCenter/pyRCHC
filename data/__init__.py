@@ -5,7 +5,8 @@ import random
 from constants import *
 from logger import Logger
 from session import Session
-from decoders import decoders
+from data.decoders import decoders
+from data.checks import check
 
 
 class DecodeException(Exception):
@@ -20,9 +21,13 @@ class Data:
     raw_buffer = bytes()
     buffer = []
 
-    def __init__(self, logger: Logger, serial: pyserial.Serial) -> None:
+    def __init__(self, logger: Logger) -> None:
         self.logger = logger
-        self.serial = serial
+
+        self.serial = pyserial.Serial()
+        self.serial.baudrate = 9600
+        self.serial.timeout = 0.5
+
         with open(os.path.join(APP_DIR, 'data_config.json'), 'r') as f:
             self.config = json.loads(f.read())
 
@@ -31,7 +36,7 @@ class Data:
         expected_data_count = 0
         out_data = {}
         errors = []
-        
+
         for item_value in data:
             # fetch the configuration (from data_config.json) of the current data item received
             while True:
@@ -70,33 +75,21 @@ class Data:
                     'severity': 2
                 })
 
+            # item_name is the variable name (eg. accX)
+            # item_value is the data received for this variable (eg. 3.78)
+            # config_item is the config (contained in data_config.json) for this variable (eg. {'type': 'float', 'checks': [...]}
+
             # proceed to the data coherence check (minimum, maximum, etc)
             if 'checks' in config_item:
-                for check_item in config_item['checks']:
-                    error_message = None
-                    # TODO: change this to add a error element to "errors" everytime a check doesn't pass
-                    # if a check does not pass, define the error message
-                    if check_item['check'] == 'min_length' and len(item_value) < check_item['value']:
-                        error_message = f'{item_name} is not long enough ({len(item_value)} < {check_item["value"]})'
-
-                    elif check_item['check'] == 'max_length' and len(item_value) > check_item['value']:
-                        error_message = f'{item_name} is too long ({len(item_value)} > {check_item["value"]})'
-
-                    elif check_item['check'] == 'min' and item_value < check_item['value']:
-                        error_message = f'{item_name} is below min ({item_value} < {check_item["value"]})'
-
-                    elif check_item['check'] == 'max' and item_value > check_item['value']:
-                        error_message = f'{item_name} is above max ({item_value} > {check_item["value"]})'
-
-                    elif check_item['check'] == 'values_enum' and item_value not in check_item["value"]:
-                        error_message = f'{item_name}\'s value is not in defined enum {check_item["value"]}'
-
-                    if error_message is not None:
+                check_messages = check(item_value, config_item['checks'], item_name)
+                if check_messages:
+                    for message in check_messages:
                         errors.append({
-                            'message': error_message,
+                            'message': message,
                             'status_item': 'integrite',
                             'severity': 2
                         })
+
             out_data[item_name] = item_value  # add the value to the list that will be returned
         if len(out_data) != expected_data_count:  # if we got more or less data than expected
             errors.append({

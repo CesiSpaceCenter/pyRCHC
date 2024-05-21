@@ -25,7 +25,6 @@ class MainWindow(QtWidgets.QMainWindow, ui.base_ui.Ui_MainWindow):
     settings = None
     session = None
     data = None
-    serial = None
     custom_ui = None
 
     # separate function from constructor because we can't change __init__'s signature
@@ -46,13 +45,7 @@ class MainWindow(QtWidgets.QMainWindow, ui.base_ui.Ui_MainWindow):
 
         self.logger.set_main_window(self)
 
-        # initialize serial connection
-        # TODO: move this to data.py
-        self.serial = serial.Serial()
-        self.serial.baudrate = 9600
-        self.serial.timeout = 0.5
-
-        self.data = Data(self.logger, self.serial)
+        self.data = Data(self.logger)
 
         self.sessionButton.clicked.connect(self.session_button)  # button to start or end a session
 
@@ -124,7 +117,6 @@ class MainWindow(QtWidgets.QMainWindow, ui.base_ui.Ui_MainWindow):
             self.timerLabel.setText('t+0s')
 
     def handle_serial_combobox(self, device_index: int) -> None:
-        #combobox_items = [self.serialComboBox.itemText(i) for i in range(self.serialComboBox.count())]
         selected_item = self.serialComboBox.itemText(device_index)
 
         if selected_item == 'Refresh':
@@ -132,17 +124,17 @@ class MainWindow(QtWidgets.QMainWindow, ui.base_ui.Ui_MainWindow):
 
         elif selected_item == 'Disconnect':
             # close the serial connection if it is open
-            if self.serial.is_open:
-                self.logger.log(f'Closing serial connection {self.serial.port}')
-                self.serial.close()
+            if self.data.serial.is_open:
+                self.logger.log(f'Closing serial connection {self.data.serial.port}')
+                self.data.serial.close()
 
         else:  # a serial device is selected
-            if self.serial.is_open:  # if the connection is already open
-                self.serial.close()
+            if self.data.serial.is_open:  # if the connection is already open
+                self.data.serial.close()
             # get the selected device & connect
-            self.serial.port = self.serial_list[device_index].device
-            self.logger.log(f'Connecting to serial port {self.serial.port}')
-            self.serial.open()
+            self.data.serial.port = self.serial_list[device_index].device
+            self.logger.log(f'Connecting to serial port {self.data.serial.port}')
+            self.data.serial.open()
 
         self.update_serial_list()
 
@@ -178,7 +170,7 @@ class MainWindow(QtWidgets.QMainWindow, ui.base_ui.Ui_MainWindow):
             self.status['connexion'] = 1
             self.status['timeout'] = 1
 
-        if not self.serial.is_open and not bool(os.environ.get('DEBUG', False)):  # serial port is not open
+        if not self.data.serial.is_open and not bool(os.environ.get('DEBUG', False)):  # serial port is not open
             self.status['connexion'] = 1
             self.status['recepteur'] = 2
             return
@@ -192,11 +184,9 @@ class MainWindow(QtWidgets.QMainWindow, ui.base_ui.Ui_MainWindow):
             self.status['recepteur'] = 1
             return
 
-        if errors:
-            print(errors)
-            for error in errors:
-                self.logger.log(f'Erreur: {error["message"]}')
-                self.status[error['status_item']] = error['severity']
+        for error in errors:
+            self.logger.log(error["message"])
+            self.status[error['status_item']] = error['severity']
 
         self.last_successful_data = time.time()
 

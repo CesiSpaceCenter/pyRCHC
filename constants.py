@@ -4,7 +4,7 @@ from PyQt6.QtCore import QStandardPaths
 if bool(os.environ.get('DEBUG', False)):
     APP_DIR = os.path.realpath('.')
 else:
-    APP_DIR = os.path.join(QStandardPaths.standardLocations(QStandardPaths.StandardLocation.AppDataLocation), 'pyRCHC')
+    APP_DIR = os.path.join(QStandardPaths.standardLocations(QStandardPaths.StandardLocation.AppDataLocation)[0], 'pyRCHC')
 
 LOG_DIR = os.path.join(APP_DIR, 'logs')
 

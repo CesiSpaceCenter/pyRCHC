@@ -4,7 +4,10 @@
   "newline": "\n",
   "items": {
     "accX": {
-      "type": "float"
+      "type": "float",
+      "checks": {
+        "max": 3
+      }
     },
     "accY": {
       "type": "float"
