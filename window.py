@@ -28,9 +28,9 @@ class MainWindow(QtWidgets.QMainWindow, ui.base_ui.Ui_MainWindow):
     custom_ui = None
 
     # separate function from constructor because we can't change __init__'s signature
-    def init(self, settings: Settings, logger: Logger) -> None:
-        self.settings = settings
-        self.logger = logger
+    def init(self) -> None:
+        self.settings = Settings()
+        self.logger = Logger()
 
         self.logger.log('Creating window')
 
@@ -45,7 +45,7 @@ class MainWindow(QtWidgets.QMainWindow, ui.base_ui.Ui_MainWindow):
 
         self.logger.set_main_window(self)
 
-        self.data = Data(self.logger)
+        self.data = Data()
 
         self.sessionButton.clicked.connect(self.session_button)  # button to start or end a session
 

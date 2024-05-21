@@ -21,8 +21,8 @@ class Data:
     raw_buffer = bytes()
     buffer = []
 
-    def __init__(self, logger: Logger) -> None:
-        self.logger = logger
+    def __init__(self) -> None:
+        self.logger = Logger()
 
         self.serial = pyserial.Serial()
         self.serial.baudrate = 9600

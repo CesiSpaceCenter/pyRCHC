@@ -1,11 +1,11 @@
 import inspect
-import sys
 from datetime import datetime
 
+from singleton import Singleton
 from constants import *
 
 
-class Logger:
+class Logger(metaclass=Singleton):
     def __init__(self) -> None:
         if not os.path.exists(LOG_DIR):
             os.mkdir(LOG_DIR)

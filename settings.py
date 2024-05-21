@@ -1,14 +1,15 @@
 import json
 
 from constants import *
+from singleton import Singleton
 from logger import Logger
 
 
-class Settings:
+class Settings(metaclass=Singleton):
     settings = {}
 
-    def __init__(self, logger: Logger) -> None:
-        self.logger = logger
+    def __init__(self) -> None:
+        self.logger = Logger()
 
         self.settings_path = os.path.join(APP_DIR, 'settings.json')
 
