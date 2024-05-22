@@ -17,17 +17,11 @@ from settings import Settings
 
 
 class MainWindow(QtWidgets.QMainWindow, ui.base_ui.Ui_MainWindow):
+    session = None
+
     def __init__(self, *args, **kwargs):
         super(MainWindow, self).__init__(*args, **kwargs)
 
-    logger = None
-    settings = None
-    session = None
-    data = None
-    custom_ui = None
-
-    # separate function from constructor because we can't change __init__'s signature
-    def init(self) -> None:
         self.settings = Settings()
         self.logger = Logger()
 
