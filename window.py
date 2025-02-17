@@ -174,11 +174,16 @@ class MainWindow(QtWidgets.QMainWindow, ui.base_ui.Ui_MainWindow):
             self.status['recepteur'] = 1
             return
 
+        fatal = False
         if errors:
-            print(errors)
             for error in errors:
                 self.logger.log(f'Erreur: {error["message"]}')
                 self.status[error['status_item']] = error['severity']
+                if error['severity'] >= 2:
+                    fatal = True
+
+        if fatal:
+            return
 
         self.last_successful_data = time.time()
 

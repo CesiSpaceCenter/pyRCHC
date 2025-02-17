@@ -5,6 +5,7 @@ from .box import Box
 from .lcd import Lcd
 from .graph import Graph
 from .data_box import DataBox
+from .scene_3d import Scene3D
 
 from typing import TYPE_CHECKING
 if TYPE_CHECKING:
@@ -34,6 +35,7 @@ class Ui:
         'lcd': Lcd,
         'graph': Graph,
         'data box': DataBox,
+        '3d scene': Scene3D
     }
 
     def process_element(self, properties: dict, parent: QtWidgets.QWidget, parent_grid: QtWidgets.QGridLayout):

@@ -40,9 +40,9 @@
           "gyrY",
           "gyrZ"
         ],
-        "row": 1,
-        "col": 0,
-        "width": 2,
+        "row": 0,
+        "col": 3,
+        "width": 1,
         "height": 1
       }
     ]
@@ -94,6 +94,15 @@
         },
         "row": 1,
         "col": 1,
+        "width": 1,
+        "height": 5
+      },
+
+      {
+        "type": "3d scene",
+        "name": "3d",
+        "row": 1,
+        "col": 2,
         "width": 1,
         "height": 5
       }
